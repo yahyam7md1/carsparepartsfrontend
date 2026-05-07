@@ -393,17 +393,19 @@ Build reusable pieces before or during the phase that first needs them. Names ar
 
 **Goal:** Vehicle table + Add/Edit vehicle + optional fitment linking UX.
 
+**Implementation detail:** see **[phase-f10.md](./phase-f10.md)**.
+
 ### Deliverables
 
-- Table: `useAdminVehicles` with pagination + brand search param.
-- Add vehicle: fields brand, series, chassis, year range, **nameEn/nameAr**.
+- Table: `useAdminVehicles` with pagination + search (`q`).
+- Add vehicle: **brand** (preset dropdown + legacy on edit), **series**, **specifics**, **chassis**, **year range** (no name fields in UI).
 - Edit/Delete.
-- **“Parts catalog” count:** backend helper or compute — document.
-- **Add vehicle modal** “merge catalog” / “linked products”: **Phase 10b** if backend adds mutation; else stub button.
+- **Parts catalog** count from API (`fitmentCount`); badge opens catalog modal (`GET /api/admin/products?vehicleId=`).
+- **Add/Edit modal:** merge fitments (`POST .../merge-fitments`) + link products via fitments API (see `phase-f10.md`). Optional **Phase 10b**: bulk fitment mutation to reduce many round-trips.
 
 ### Components
 
-- `VehicleLibraryTable`, `AddVehicleModal`, `SearchField`.
+- `VehicleLibraryView`, `VehicleLibraryTable`, `VehicleFormModal`, `VehicleCatalogModal`; shared `SearchField`, `Modal`, `Select`.
 
 ### Exit criteria
 

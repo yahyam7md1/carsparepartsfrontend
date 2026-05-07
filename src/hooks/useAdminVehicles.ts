@@ -19,7 +19,6 @@ function normalizeError(e: unknown): ApiError | Error {
 }
 
 export function useAdminVehicles(
-  accessToken: string | null,
   options: {
     enabled?: boolean;
     params?: AdminVehiclesParams;
@@ -31,10 +30,9 @@ export function useAdminVehicles(
   const [error, setError] = useState<ApiError | Error | null>(null);
 
   const paramsKey = JSON.stringify(params ?? {});
-  const shouldRun = Boolean(enabled && accessToken);
 
   const refetch = useCallback(async () => {
-    if (!accessToken || !enabled) {
+    if (!enabled) {
       setData(null);
       setLoading(false);
       setError(null);
@@ -45,7 +43,7 @@ export function useAdminVehicles(
     try {
       const parsed =
         paramsKey === "{}" ? undefined : (JSON.parse(paramsKey) as AdminVehiclesParams);
-      const res = await fetchAdminVehicles(accessToken, parsed);
+      const res = await fetchAdminVehicles(parsed);
       setData(res);
     } catch (e) {
       setData(null);
@@ -53,17 +51,11 @@ export function useAdminVehicles(
     } finally {
       setLoading(false);
     }
-  }, [accessToken, enabled, paramsKey]);
+  }, [enabled, paramsKey]);
 
   useEffect(() => {
-    if (!shouldRun) {
-      setData(null);
-      setLoading(false);
-      setError(null);
-      return;
-    }
     void refetch();
-  }, [refetch, shouldRun]);
+  }, [refetch]);
 
   return { data, loading, error, refetch };
 }

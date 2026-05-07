@@ -70,6 +70,11 @@ export type VehicleDto = {
   yearRange: string;
 };
 
+/** Admin vehicle list row — includes aggregate fitment count from backend. */
+export type AdminVehicleListRow = VehicleDto & {
+  fitmentCount?: number;
+};
+
 export type PaginatedProducts = {
   products: ProductListRow[];
   total: number;
