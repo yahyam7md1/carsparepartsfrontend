@@ -1,5 +1,5 @@
-import { AdminPlaceholderView } from "@/admin/views/AdminPlaceholderView";
+import { VehicleLibraryView } from "@/admin/views/VehicleLibraryView";
 
 export default function AdminVehiclesPage() {
-  return <AdminPlaceholderView title="Vehicle Library" />;
+  return <VehicleLibraryView />;
 }

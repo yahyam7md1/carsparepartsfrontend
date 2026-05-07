@@ -10,6 +10,7 @@ export type {
   ProductImagePreview,
   ProductListRow,
   VehicleDto,
+  AdminVehicleListRow,
 } from "./types";
 export { fetchCategoryTree } from "./services/categories";
 export {
@@ -25,8 +26,24 @@ export type {
 export type {
   AdminVehiclesParams,
   AdminVehiclesResponse,
+  CreateVehicleBody,
+  UpdateVehicleBody,
 } from "./services/vehicles";
-export { fetchAdminVehicles } from "./services/vehicles";
+export {
+  fetchAdminVehicles,
+  fetchAdminVehicle,
+  createAdminVehicle,
+  updateAdminVehicle,
+  deleteAdminVehicle,
+  mergeVehicleFitmentsApi,
+} from "./services/vehicles";
+export type { AdminProductListParams } from "./services/adminProducts";
+export {
+  fetchAdminProducts,
+  fetchProductAdmin,
+  replaceAdminProductFitments,
+  appendVehicleToProductFitments,
+} from "./services/adminProducts";
 export {
   loginRequest,
   fetchAdminMe,
