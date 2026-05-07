@@ -33,11 +33,16 @@ export type ProductImagePreview = {
   sortOrder: number;
 };
 
+export type ProductOemRow = {
+  id: string;
+  value: string;
+  sortOrder: number;
+};
+
 /** GET /api/products list row */
 export type ProductListRow = {
   id: string;
   sku: string;
-  oemNumber: string | null;
   categoryId: number;
   brandName: string;
   nameEn: string;
@@ -46,6 +51,9 @@ export type ProductListRow = {
   descAr: string | null;
   price: string;
   stockQuantity: number;
+  stockAlertThresholdFast: number | null;
+  stockAlertThresholdMedium: number | null;
+  stockAlertThresholdSlow: number | null;
   isFeatured: boolean;
   isActive: boolean;
   dimensions: string | null;
@@ -57,6 +65,7 @@ export type ProductListRow = {
   updatedAt: string;
   category: CategorySummary;
   images: ProductImagePreview[];
+  oems: ProductOemRow[];
   /** Present on admin list when API includes fitment aggregate. */
   fitmentCount?: number;
 };
@@ -70,6 +79,7 @@ export type VehicleDto = {
   specifics: string;
   chassisCode: string;
   yearRange: string;
+  generation: string | null;
 };
 
 /** Admin vehicle list row — includes aggregate fitment count from backend. */

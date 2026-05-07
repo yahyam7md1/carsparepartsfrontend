@@ -10,7 +10,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { ProductDetail, AdminVehicleListRow, ProductImagePreview } from "@/lib/api/types";
+import type {
+  ProductDetail,
+  AdminVehicleListRow,
+  ProductImagePreview,
+  ProductOemRow,
+} from "@/lib/api/types";
 import type { AdminCategoryRow } from "@/lib/api/services/adminCategories";
 import {
   createAdminProduct,
@@ -42,6 +47,10 @@ const SECTION_CARD =
 /** Single-line text/number inputs — fixed height is OK. */
 const INPUT_CONTROL = "h-9 min-h-9 py-1.5 text-xs leading-snug";
 
+/** Number fields without spinners — same height/visual weight as other compact inputs. */
+const NUMBER_NO_SPINNER =
+  "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
 /**
  * Native &lt;select&gt; needs extra vertical room; `h-8`+tight padding clips text on Windows.
  */
@@ -51,6 +60,9 @@ const SELECT_CONTROL =
 /** Bilingual descriptions: grow to fill space below name row (paired column is stretch-aligned). */
 const BILINGUAL_DESC_TEXTAREA =
   "w-full min-h-[4.5rem] flex-1 resize-none rounded-lg border border-secondary/25 bg-background px-2.5 py-2 text-xs leading-snug text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-accent/35";
+
+const OEM_LIST_TEXTAREA =
+  "w-full min-h-[4rem] resize-y rounded-lg border border-secondary/25 bg-background px-2.5 py-2 text-xs leading-snug text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-accent/35";
 
 /** Vehicle combobox shell — no outer shadow; avoids stacked box with inner input. */
 const SEARCH_COMBO_CLASS =
@@ -80,11 +92,55 @@ function sortProductImages(images: ProductImagePreview[]): ProductImagePreview[]
   });
 }
 
+/** Trim, max 200 chars, de-dupe case-insensitively — mirrors backend normalizeOemValues. */
+function parseOemListFromText(raw: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of raw.split(/[\n,]+/)) {
+    const v = part.trim().slice(0, 200);
+    if (!v) continue;
+    const key = v.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(v);
+  }
+  return out;
+}
+
+function formatOemsForForm(oems: ProductOemRow[]): string {
+  return [...oems]
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id))
+    .map((o) => o.value)
+    .join("\n");
+}
+
+function stockAlertsOrdered(
+  fast: number | null,
+  medium: number | null,
+  slow: number | null,
+): boolean {
+  if (fast != null && medium != null && fast > medium) return false;
+  if (medium != null && slow != null && medium > slow) return false;
+  if (fast != null && slow != null && fast > slow) return false;
+  return true;
+}
+
+function parseOptionalThreshold(raw: string): number | null | "invalid" {
+  const t = raw.trim();
+  if (!t) return null;
+  const n = Number.parseInt(t, 10);
+  if (!Number.isFinite(n) || n < 0) return "invalid";
+  return n;
+}
+
 function applyProductToForm(
   p: ProductDetail,
   setters: {
     setSku: (v: string) => void;
-    setOemNumber: (v: string) => void;
+    setOemLines: (v: string) => void;
+    setStockAlertFast: (v: string) => void;
+    setStockAlertMedium: (v: string) => void;
+    setStockAlertSlow: (v: string) => void;
     setReservedPartBrand: (v: string) => void;
     setCategoryId: (v: string) => void;
     setPrice: (v: string) => void;
@@ -98,7 +154,16 @@ function applyProductToForm(
   },
 ) {
   setters.setSku(p.sku);
-  setters.setOemNumber(p.oemNumber ?? "");
+  setters.setOemLines(formatOemsForForm(p.oems ?? []));
+  setters.setStockAlertFast(
+    p.stockAlertThresholdFast != null ? String(p.stockAlertThresholdFast) : "",
+  );
+  setters.setStockAlertMedium(
+    p.stockAlertThresholdMedium != null ? String(p.stockAlertThresholdMedium) : "",
+  );
+  setters.setStockAlertSlow(
+    p.stockAlertThresholdSlow != null ? String(p.stockAlertThresholdSlow) : "",
+  );
   setters.setReservedPartBrand(p.brandName?.trim() ? p.brandName : DEFAULT_PART_BRAND);
   setters.setCategoryId(String(p.categoryId));
   setters.setPrice(p.price);
@@ -155,7 +220,10 @@ export function AddProductModal({
   const comboWrapRef = useRef<HTMLDivElement>(null);
 
   const [sku, setSku] = useState("");
-  const [oemNumber, setOemNumber] = useState("");
+  const [oemLines, setOemLines] = useState("");
+  const [stockAlertFast, setStockAlertFast] = useState("");
+  const [stockAlertMedium, setStockAlertMedium] = useState("");
+  const [stockAlertSlow, setStockAlertSlow] = useState("");
   /** Persisted product `brandName` from API on edit; default for new rows (not shown in UI). */
   const [reservedPartBrand, setReservedPartBrand] = useState(DEFAULT_PART_BRAND);
   const [categoryId, setCategoryId] = useState("");
@@ -214,7 +282,10 @@ export function AddProductModal({
 
   const reset = useCallback(() => {
     setSku("");
-    setOemNumber("");
+    setOemLines("");
+    setStockAlertFast("");
+    setStockAlertMedium("");
+    setStockAlertSlow("");
     setReservedPartBrand(DEFAULT_PART_BRAND);
     setCategoryId("");
     setPrice("");
@@ -251,7 +322,10 @@ export function AddProductModal({
         if (cancelled) return;
         applyProductToForm(p, {
           setSku,
-          setOemNumber,
+          setOemLines,
+          setStockAlertFast,
+          setStockAlertMedium,
+          setStockAlertSlow,
           setReservedPartBrand,
           setCategoryId,
           setPrice,
@@ -354,7 +428,24 @@ export function AddProductModal({
       setError("Stock must be a valid non-negative integer.");
       return;
     }
-    const oem = oemNumber.trim() ? oemNumber.trim() : null;
+    const oemNumbers = parseOemListFromText(oemLines);
+    if (oemNumbers.length > 50) {
+      setError("At most 50 OEM numbers are allowed.");
+      return;
+    }
+    const tFast = parseOptionalThreshold(stockAlertFast);
+    const tMed = parseOptionalThreshold(stockAlertMedium);
+    const tSlow = parseOptionalThreshold(stockAlertSlow);
+    if (tFast === "invalid" || tMed === "invalid" || tSlow === "invalid") {
+      setError("Stock alert thresholds must be non-negative integers.");
+      return;
+    }
+    if (!stockAlertsOrdered(tFast, tMed, tSlow)) {
+      setError(
+        "Stock alert thresholds must satisfy fast ≤ medium ≤ slow (when each tier is set).",
+      );
+      return;
+    }
     const brandT = reservedPartBrand.trim() || DEFAULT_PART_BRAND;
 
     setSubmitting(true);
@@ -363,7 +454,7 @@ export function AddProductModal({
       if (mode === "add") {
         const created = await createAdminProduct({
           sku: skuT,
-          oemNumber: oem,
+          oemNumbers,
           categoryId: cat,
           brandName: brandT,
           nameEn: nameEnT,
@@ -374,13 +465,16 @@ export function AddProductModal({
           stockQuantity: stockN,
           isActive: true,
           isFeatured: false,
+          stockAlertThresholdFast: tFast,
+          stockAlertThresholdMedium: tMed,
+          stockAlertThresholdSlow: tSlow,
         });
         id = created.id;
       } else {
         if (!productId) return;
         await updateAdminProduct(productId, {
           sku: skuT,
-          oemNumber: oem,
+          oemNumbers,
           categoryId: cat,
           brandName: brandT,
           nameEn: nameEnT,
@@ -389,6 +483,9 @@ export function AddProductModal({
           descAr: descAr.trim() || null,
           price: priceN,
           stockQuantity: stockN,
+          stockAlertThresholdFast: tFast,
+          stockAlertThresholdMedium: tMed,
+          stockAlertThresholdSlow: tSlow,
         });
         id = productId;
       }
@@ -413,7 +510,10 @@ export function AddProductModal({
     }
   }, [
     sku,
-    oemNumber,
+    oemLines,
+    stockAlertFast,
+    stockAlertMedium,
+    stockAlertSlow,
     reservedPartBrand,
     categoryId,
     price,
@@ -474,12 +574,13 @@ export function AddProductModal({
                   className={INPUT_CONTROL}
                 />
               </Field>
-              <Field label="OEM number">
-                <Input
-                  value={oemNumber}
-                  onChange={(e) => setOemNumber(e.target.value)}
-                  placeholder="Optional — reference number"
-                  className={INPUT_CONTROL}
+              <Field label="OEM numbers">
+                <textarea
+                  value={oemLines}
+                  onChange={(e) => setOemLines(e.target.value)}
+                  placeholder="One per line or comma-separated — optional reference numbers"
+                  className={OEM_LIST_TEXTAREA}
+                  rows={3}
                 />
               </Field>
               <Field label="Category">
@@ -519,6 +620,45 @@ export function AddProductModal({
                   />
                 </Field>
               </div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <Field label="Fast" className="min-w-0" labelClassName="whitespace-nowrap">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={stockAlertFast}
+                    onChange={(e) => setStockAlertFast(e.target.value)}
+                    inputMode="numeric"
+                    className={clsx(INPUT_CONTROL, NUMBER_NO_SPINNER)}
+                  />
+                </Field>
+                <Field label="Medium" className="min-w-0" labelClassName="whitespace-nowrap">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={stockAlertMedium}
+                    onChange={(e) => setStockAlertMedium(e.target.value)}
+                    inputMode="numeric"
+                    className={clsx(INPUT_CONTROL, NUMBER_NO_SPINNER)}
+                  />
+                </Field>
+                <Field label="Slow" className="min-w-0" labelClassName="whitespace-nowrap">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={stockAlertSlow}
+                    onChange={(e) => setStockAlertSlow(e.target.value)}
+                    inputMode="numeric"
+                    className={clsx(INPUT_CONTROL, NUMBER_NO_SPINNER)}
+                  />
+                </Field>
+              </div>
+              <p className="text-[0.65rem] leading-snug text-secondary">
+                Optional stock alert tiers (fast → medium → slow): warn when quantity is at or below
+                each threshold. Leave blank to disable. When set, use fast ≤ medium ≤ slow.
+              </p>
             </div>
           </section>
 
@@ -825,16 +965,23 @@ function Field({
   label,
   className,
   contentClassName,
+  labelClassName,
   children,
 }: Readonly<{
   label: string;
   className?: string;
   contentClassName?: string;
+  labelClassName?: string;
   children: ReactNode;
 }>) {
   return (
     <div className={className}>
-      <Label className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
+      <Label
+        className={clsx(
+          "text-[0.6rem] font-semibold uppercase tracking-wide text-primary",
+          labelClassName,
+        )}
+      >
         {label}
       </Label>
       <div className={clsx("mt-1", contentClassName)}>{children}</div>

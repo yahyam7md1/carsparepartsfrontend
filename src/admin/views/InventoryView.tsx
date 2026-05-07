@@ -276,13 +276,16 @@ export function InventoryView() {
         open={oemModalRow !== null}
         onClose={() => setOemModalRow(null)}
         title={oemModalRow ? `OEM — ${oemModalRow.sku}` : "OEM"}
-        subtitle="Reference number on file for this product."
+        subtitle="OEM reference numbers on file for this product."
         lines={
-          oemModalRow?.oemNumber?.trim()
-            ? [oemModalRow.oemNumber.trim()]
+          oemModalRow
+            ? [...oemModalRow.oems]
+                .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id))
+                .map((o) => o.value)
+                .filter(Boolean)
             : []
         }
-        emptyMessage="No OEM number on file."
+        emptyMessage="No OEM numbers on file."
       />
 
       <AdminSimpleListModal

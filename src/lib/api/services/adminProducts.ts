@@ -15,7 +15,7 @@ export type AdminProductListParams = {
 
 export type CreateAdminProductBody = {
   sku: string;
-  oemNumber?: string | null;
+  oemNumbers?: string[];
   categoryId: number;
   brandName: string;
   nameEn: string;
@@ -32,6 +32,9 @@ export type CreateAdminProductBody = {
   manufacturedIn?: string | null;
   generation?: string | null;
   condition?: "new" | "used";
+  stockAlertThresholdFast?: number | null;
+  stockAlertThresholdMedium?: number | null;
+  stockAlertThresholdSlow?: number | null;
 };
 
 export type UpdateAdminProductBody = Partial<CreateAdminProductBody>;
