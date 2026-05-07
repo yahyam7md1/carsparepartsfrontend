@@ -51,7 +51,7 @@ const eslintConfig = [
     ],
   },
   {
-    files: ["src/shop/**/*.{ts,tsx}", "src/app/(shop)/**/*.{ts,tsx}"],
+    files: ["src/shop/**/*.{ts,tsx}", "src/app/[locale]/(shop)/**/*.{ts,tsx}"],
     rules: shopImportRestriction,
   },
   {

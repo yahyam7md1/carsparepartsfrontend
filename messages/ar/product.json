@@ -1,0 +1,14 @@
+{
+  "productDetailDescription": "الوصف",
+  "productDetailTechnicalSpecs": "المواصفات التقنية",
+  "productDetailGalleryAria": "صور المنتج",
+  "productDetailBuyBoxAria": "خيارات الشراء",
+  "productDetailSku": "رمز المنتج",
+  "productDetailInStock": "متوفر",
+  "productDetailPrevImage": "الصورة السابقة",
+  "productDetailNextImage": "الصورة التالية",
+  "productDetailAskSpecialist": "لديك سؤال تقني؟ اسأل أخصائيّنا",
+  "productDetailPriceLabel": "السعر",
+  "productDetailVatNote": "الأسعار شاملة ضريبة القيمة المضافة حيثما تنطبق.",
+  "productDetailStickyBuyAria": "شراء سريع"
+}

@@ -1,0 +1,11 @@
+{
+  "starterShellHint": "واجهة المتجر: عدّل",
+  "starterRouteHint": "نقطة دخول المسار:",
+  "starterFileHomeView": "src/shop/views/HomeView.tsx",
+  "starterFileShopPage": "src/app/[locale]/(shop)/shop/page.tsx",
+  "starterLinkDeploy": "نشر الآن",
+  "starterLinkReadDocs": "اقرأ التوثيق",
+  "starterFooterLearn": "تعلّم",
+  "starterFooterExamples": "أمثلة",
+  "starterFooterNextSite": "انتقل إلى nextjs.org ←"
+}

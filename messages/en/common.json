@@ -1,0 +1,11 @@
+{
+  "starterShellHint": "Shop shell: edit",
+  "starterRouteHint": "Route entrypoint:",
+  "starterFileHomeView": "src/shop/views/HomeView.tsx",
+  "starterFileShopPage": "src/app/[locale]/(shop)/shop/page.tsx",
+  "starterLinkDeploy": "Deploy now",
+  "starterLinkReadDocs": "Read our docs",
+  "starterFooterLearn": "Learn",
+  "starterFooterExamples": "Examples",
+  "starterFooterNextSite": "Go to nextjs.org →"
+}

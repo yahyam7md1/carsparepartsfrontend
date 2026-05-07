@@ -1,0 +1,14 @@
+{
+  "productDetailDescription": "Description",
+  "productDetailTechnicalSpecs": "Technical specifications",
+  "productDetailGalleryAria": "Product images",
+  "productDetailBuyBoxAria": "Purchase options",
+  "productDetailSku": "SKU",
+  "productDetailInStock": "In stock",
+  "productDetailPrevImage": "Previous image",
+  "productDetailNextImage": "Next image",
+  "productDetailAskSpecialist": "Have a technical question? Ask our specialist",
+  "productDetailPriceLabel": "Price",
+  "productDetailVatNote": "Prices include VAT where applicable.",
+  "productDetailStickyBuyAria": "Quick purchase"
+}
