@@ -55,6 +55,7 @@ export {
   fetchProductAdmin,
   replaceAdminProductFitments,
   appendVehicleToProductFitments,
+  deleteAdminProductImage,
 } from "./services/adminProducts";
 export {
   loginRequest,

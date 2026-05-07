@@ -180,7 +180,14 @@ export function ProductCatalogTable({
                     className="group/row hover:bg-primary/[0.02]"
                   >
                     <td className="px-3 py-2 align-middle">
-                      <div className="relative size-11 overflow-hidden rounded-lg border border-secondary/15 bg-background">
+                      <div
+                        className="relative size-11 overflow-hidden rounded-lg border border-secondary/15 bg-background"
+                        title={
+                          p.images.length === 0
+                            ? "No images"
+                            : `${p.images.length} image(s) — main shown`
+                        }
+                      >
                         {thumb ? (
                           // eslint-disable-next-line @next/next/no-img-element -- admin URLs from API / uploads, any host
                           <img
@@ -193,6 +200,11 @@ export function ProductCatalogTable({
                             <Package className="size-5" strokeWidth={1.5} />
                           </div>
                         )}
+                        {p.images.length > 1 ? (
+                          <span className="absolute bottom-0.5 right-0.5 min-w-[1rem] rounded bg-black/65 px-1 text-center text-[0.55rem] font-semibold leading-none text-white tabular-nums">
+                            {p.images.length}
+                          </span>
+                        ) : null}
                       </div>
                     </td>
                     <td className="px-3 py-2 align-top">

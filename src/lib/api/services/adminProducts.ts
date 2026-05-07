@@ -108,11 +108,26 @@ export async function uploadAdminProductImage(
   if (meta?.sortOrder !== undefined) {
     form.append("sortOrder", String(meta.sortOrder));
   }
+  /**
+   * `adminApi` defaults to `Content-Type: application/json`. With that header,
+   * axios turns `FormData` into JSON and no file reaches multer — 400.
+   * Omit Content-Type so the browser sets `multipart/form-data` + boundary.
+   */
   const { data } = await adminApi.post<{ product: ProductDetail }>(
     `/api/admin/products/${encodeURIComponent(productId)}/images`,
     form,
+    { headers: { "Content-Type": false } },
   );
   return data.product;
+}
+
+export async function deleteAdminProductImage(
+  productId: string,
+  imageId: string,
+): Promise<void> {
+  await adminApi.delete(
+    `/api/admin/products/${encodeURIComponent(productId)}/images/${encodeURIComponent(imageId)}`,
+  );
 }
 
 /** Adds one vehicle to a product’s fitment set without dropping existing links. */
