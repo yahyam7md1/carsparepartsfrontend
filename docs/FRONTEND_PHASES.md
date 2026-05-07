@@ -341,6 +341,8 @@ Build reusable pieces before or during the phase that first needs them. Names ar
 
 ## Phase F8 — Admin authentication & shell
 
+**Implementation detail:** see **[phase-f8.md](./phase-f8.md)**.
+
 **Goal:** Secure admin area; sidebar matches design.
 
 ### Deliverables
@@ -414,6 +416,8 @@ Build reusable pieces before or during the phase that first needs them. Names ar
 ---
 
 ## Phase F11 — Admin: Inventory (products)
+
+**Implementation detail:** see **[phase-f11.md](./phase-f11.md)**.
 
 **Goal:** Product catalog table + status toggles + navigation to edit + **Add product** modal.
 
@@ -493,4 +497,4 @@ src/
 
 ---
 
-*Last updated: aligned with CarSparePartsBackend public + admin APIs as of Phase 5 (WhatsApp intent + global errors). Adjust phase numbers if you merge F7 into F3 or split F11.*
+*Last updated: added F8 / F11 implementation docs (`phase-f8.md`, `phase-f11.md`). Adjust phase numbers if you merge F7 into F3 or split F11.*
