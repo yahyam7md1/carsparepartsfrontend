@@ -47,6 +47,8 @@ export type ProductListRow = {
   updatedAt: string;
   category: CategorySummary;
   images: ProductImagePreview[];
+  /** Present on admin list when API includes fitment aggregate. */
+  fitmentCount?: number;
 };
 
 export type VehicleDto = {

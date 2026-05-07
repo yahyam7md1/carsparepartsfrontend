@@ -1,5 +1,5 @@
-import { AdminPlaceholderView } from "@/admin/views/AdminPlaceholderView";
+import { InventoryView } from "@/admin/views/InventoryView";
 
 export default function AdminInventoryPage() {
-  return <AdminPlaceholderView title="Inventory" />;
+  return <InventoryView />;
 }

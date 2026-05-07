@@ -12,8 +12,18 @@ export type ModalProps = Readonly<{
   title: string;
   children: ReactNode;
   footer?: ReactNode;
-  /** Wider modals: pass e.g. `max-w-2xl` */
+  /** Overrides default `max-w-lg` (and any other panel classes you pass). */
   panelClassName?: string;
+  /** Merged with the fixed fullscreen flex wrapper (padding, alignment). */
+  overlayClassName?: string;
+  /** Merged with the dialog header row. */
+  headerClassName?: string;
+  /** Merged with the title `h2`. */
+  titleClassName?: string;
+  /** Merged with the scrollable body region. */
+  bodyClassName?: string;
+  /** Merged with the footer region. */
+  footerClassName?: string;
 }>;
 
 export function Modal({
@@ -23,6 +33,11 @@ export function Modal({
   children,
   footer,
   panelClassName,
+  overlayClassName,
+  headerClassName,
+  titleClassName,
+  bodyClassName,
+  footerClassName,
 }: ModalProps) {
   useEffect(() => {
     if (!open) return;
@@ -41,7 +56,12 @@ export function Modal({
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div
+      className={clsx(
+        "fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6",
+        overlayClassName,
+      )}
+    >
       <button
         type="button"
         aria-label="Close dialog backdrop"
@@ -53,12 +73,20 @@ export function Modal({
         aria-modal="true"
         aria-labelledby="modal-title"
         className={clsx(
-          "relative z-10 flex max-h-[min(90vh,900px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-secondary/20 bg-white shadow-lg ring-1 ring-primary/5",
-          panelClassName,
+          "relative z-10 flex w-full flex-col overflow-hidden rounded-2xl border border-secondary/20 bg-white shadow-lg ring-1 ring-primary/5",
+          panelClassName ?? "max-h-[min(90vh,900px)] max-w-lg",
         )}
       >
-        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-secondary/15 px-5 py-4 sm:px-6">
-          <h2 id="modal-title" className="text-lg font-semibold text-primary">
+        <header
+          className={clsx(
+            "flex shrink-0 items-start justify-between gap-4 border-b border-secondary/15 px-5 py-4 sm:px-6",
+            headerClassName,
+          )}
+        >
+          <h2
+            id="modal-title"
+            className={clsx("font-semibold text-primary", titleClassName ?? "text-lg")}
+          >
             {title}
           </h2>
           <Button
@@ -72,9 +100,21 @@ export function Modal({
             <X className="size-5" strokeWidth={2} />
           </Button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">{children}</div>
+        <div
+          className={clsx(
+            "min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6",
+            bodyClassName,
+          )}
+        >
+          {children}
+        </div>
         {footer ? (
-          <footer className="shrink-0 border-t border-secondary/15 bg-background px-5 py-4 sm:px-6">
+          <footer
+            className={clsx(
+              "shrink-0 border-t border-secondary/15 bg-background px-5 py-4 sm:px-6",
+              footerClassName,
+            )}
+          >
             {footer}
           </footer>
         ) : null}

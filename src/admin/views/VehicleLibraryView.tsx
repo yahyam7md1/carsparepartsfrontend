@@ -12,7 +12,7 @@ import { VehicleCatalogModal } from "@/admin/components/vehicle-library/VehicleC
 import { VehicleFormModal } from "@/admin/components/vehicle-library/VehicleFormModal";
 import { VehicleLibraryTable } from "@/admin/components/vehicle-library/VehicleLibraryTable";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 export function VehicleLibraryView() {
   const [page, setPage] = useState(1);
