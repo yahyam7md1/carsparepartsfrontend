@@ -1,11 +1,16 @@
+import { AdminLayoutProviders } from "@/admin/components/AdminLayoutProviders";
+
 export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-background text-foreground" data-silo="admin">
-      {children}
+    <div
+      className="min-h-screen bg-background text-foreground"
+      data-silo="admin"
+    >
+      <AdminLayoutProviders>{children}</AdminLayoutProviders>
     </div>
   );
 }

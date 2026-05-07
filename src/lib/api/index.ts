@@ -1,4 +1,5 @@
 export { apiClient } from "./client";
+export { adminApi, setAdminUnauthorizedHandler } from "./adminClient";
 export { ApiError, isApiError } from "./errors";
 export type {
   CategorySummary,
@@ -26,3 +27,9 @@ export type {
   AdminVehiclesResponse,
 } from "./services/vehicles";
 export { fetchAdminVehicles } from "./services/vehicles";
+export {
+  loginRequest,
+  fetchAdminMe,
+  logoutRequest,
+} from "./services/auth";
+export type { AdminUser, AdminLoginResponse } from "./types/auth";

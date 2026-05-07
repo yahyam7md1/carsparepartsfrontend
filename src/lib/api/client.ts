@@ -1,10 +1,10 @@
-import axios, { type AxiosError } from "axios";
-import { ApiError } from "./errors";
+import axios from "axios";
+import { isAxiosErrorLike, toApiError } from "./toApiError";
+import { getApiBaseUrl } from "./getApiBaseUrl";
 
-const baseURL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
-  "http://localhost:3001";
+const baseURL = getApiBaseUrl();
 
+/** Shop and public API — no session cookies. */
 export const apiClient = axios.create({
   baseURL,
   headers: {
@@ -15,33 +15,10 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<{ error?: string; details?: unknown }>) => {
-    const status = error.response?.status ?? 0;
-    const payload = error.response?.data;
-
-    const messageFromBody =
-      typeof payload === "object" &&
-      payload !== null &&
-      "error" in payload &&
-      typeof (payload as { error: unknown }).error === "string"
-        ? (payload as { error: string }).error
-        : null;
-
-    const message = messageFromBody ?? error.message ?? "Request failed";
-
-    if (process.env.NODE_ENV === "development") {
-      const method = error.config?.method?.toUpperCase() ?? "?";
-      const url = error.config?.url ?? "";
-      console.warn("[api]", `${method} ${url}`, status || "network", message);
+  (error: unknown) => {
+    if (!isAxiosErrorLike(error)) {
+      return Promise.reject(error);
     }
-
-    const details =
-      typeof payload === "object" &&
-      payload !== null &&
-      "details" in payload
-        ? (payload as { details: unknown }).details
-        : undefined;
-
-    return Promise.reject(new ApiError(message, status, details));
+    return toApiError(error);
   },
 );

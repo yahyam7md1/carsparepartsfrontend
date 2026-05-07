@@ -17,7 +17,6 @@ export function HomeView() {
         </div>
 
         <Image
-          className="dark:invert"
           src="/next.svg"
           alt="Next.js logo"
           width={180}
@@ -27,14 +26,14 @@ export function HomeView() {
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left rtl:text-right">
           <li className="mb-2 tracking-[-.01em]">
             {t("starterShellHint")}{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+            <code className="rounded bg-secondary/15 font-mono font-semibold px-1 py-0.5 text-foreground">
               {t("starterFileHomeView")}
             </code>
             .
           </li>
           <li className="tracking-[-.01em]">
             {t("starterRouteHint")}{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+            <code className="rounded bg-secondary/15 font-mono font-semibold px-1 py-0.5 text-foreground">
               {t("starterFileShopPage")}
             </code>
             .
@@ -49,7 +48,6 @@ export function HomeView() {
             rel="noopener noreferrer"
           >
             <Image
-              className="dark:invert"
               src="/vercel.svg"
               alt=""
               width={20}
@@ -58,7 +56,7 @@ export function HomeView() {
             {t("starterLinkDeploy")}
           </a>
           <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-black/[.04] dark:hover:bg-white/[.06] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
+            className="flex h-10 w-full items-center justify-center rounded-full border border-solid border-secondary/30 px-4 font-medium transition-colors hover:border-transparent hover:bg-secondary/10 sm:h-12 sm:w-auto sm:px-5 sm:text-base md:w-[158px]"
             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
             target="_blank"
             rel="noopener noreferrer"
