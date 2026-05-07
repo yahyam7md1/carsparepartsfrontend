@@ -15,6 +15,16 @@ export type CategorySummary = {
   nameAr: string;
 };
 
+/** GET /api/admin/categories — flat row with direct product count */
+export type AdminCategory = {
+  id: number;
+  parentId: number | null;
+  nameEn: string;
+  nameAr: string;
+  slug: string;
+  productCount: number;
+};
+
 export type ProductImagePreview = {
   id: string;
   urlThumb: string;

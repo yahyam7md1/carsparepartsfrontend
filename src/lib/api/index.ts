@@ -2,6 +2,7 @@ export { apiClient } from "./client";
 export { adminApi, setAdminUnauthorizedHandler } from "./adminClient";
 export { ApiError, isApiError } from "./errors";
 export type {
+  AdminCategory,
   CategorySummary,
   CategoryTreeNode,
   PaginatedProducts,
@@ -11,7 +12,18 @@ export type {
   ProductListRow,
   VehicleDto,
 } from "./types";
-export { fetchCategoryTree } from "./services/categories";
+export {
+  createAdminCategory,
+  deleteAdminCategory,
+  fetchAdminCategories,
+  fetchCategoryTree,
+  updateAdminCategory,
+} from "./services/categories";
+export type {
+  AdminCategoryPayload,
+  CreateAdminCategoryBody,
+  UpdateAdminCategoryBody,
+} from "./services/categories";
 export {
   fetchFeaturedProducts,
   fetchProductFitments,

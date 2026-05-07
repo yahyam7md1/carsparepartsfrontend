@@ -1,5 +1,5 @@
-import { AdminPlaceholderView } from "@/admin/views/AdminPlaceholderView";
+import { AdminCategoriesView } from "@/admin/views/AdminCategoriesView";
 
 export default function AdminCategoriesPage() {
-  return <AdminPlaceholderView title="Categories" />;
+  return <AdminCategoriesView />;
 }
