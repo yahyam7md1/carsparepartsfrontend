@@ -16,6 +16,7 @@ import {
   updateAdminVehicle,
 } from "@/lib/api/services/vehicles";
 import { isApiError } from "@/lib/api/errors";
+import clsx from "clsx";
 import { useAdminVehicles } from "@/hooks/useAdminVehicles";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
@@ -27,6 +28,11 @@ import {
   SearchField,
   Select,
 } from "@/shared/ui";
+
+const COMPACT_FIELD = "h-9 min-h-9 py-1.5 text-xs leading-snug";
+
+const COMPACT_SELECT =
+  "h-auto min-h-9 py-1.5 pe-9 text-xs leading-normal [line-height:1.35rem]";
 
 type LinkedRow = { id: string; sku: string; nameEn: string; brandName: string };
 
@@ -329,22 +335,29 @@ export function VehicleFormModal({
       open={open}
       onClose={onClose}
       title={mode === "add" ? "Add vehicle" : "Edit vehicle"}
-      panelClassName="max-w-2xl"
+      panelClassName="max-h-[min(94dvh,820px)] w-full max-w-2xl"
+      overlayClassName="items-start justify-center p-2 pt-2 sm:items-center sm:p-3 sm:pt-4"
+      headerClassName="px-4 py-2 sm:px-5 sm:py-2"
+      titleClassName="text-base leading-tight"
+      bodyClassName="px-4 py-2 sm:px-5 sm:py-2"
+      footerClassName="px-4 py-2 sm:px-5 sm:py-2"
       footer={
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="primary"
+            size="sm"
             disabled={submitting}
-            className="gap-2"
+            className="gap-1.5"
             onClick={() => void handleSubmit()}
           >
-            <Plus className="size-4" strokeWidth={2} />
+            <Plus className="size-3.5" strokeWidth={2} />
             {mode === "add" ? "Add vehicle" : "Save changes"}
           </Button>
           <Button
             type="button"
             variant="secondary"
+            size="sm"
             disabled={submitting}
             onClick={onClose}
           >
@@ -353,15 +366,16 @@ export function VehicleFormModal({
         </div>
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-3">
         {error ? <FieldError>{error}</FieldError> : null}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           <Field label="Make">
             <Select
               required
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
+              className={COMPACT_SELECT}
             >
               <option value="">Select make</option>
               {brandSelectOptions.map((opt) => (
@@ -377,6 +391,7 @@ export function VehicleFormModal({
               onChange={(e) => setSeries(e.target.value)}
               placeholder="e.g. 3 Series"
               autoComplete="off"
+              className={COMPACT_FIELD}
             />
           </Field>
           <Field label="Specifics">
@@ -385,6 +400,7 @@ export function VehicleFormModal({
               onChange={(e) => setSpecifics(e.target.value)}
               placeholder="e.g. 330i"
               autoComplete="off"
+              className={COMPACT_FIELD}
             />
           </Field>
           <Field label="Chassis code">
@@ -393,6 +409,7 @@ export function VehicleFormModal({
               onChange={(e) => setChassisCode(e.target.value)}
               placeholder="F30 · W205 · 5G"
               autoComplete="off"
+              className={COMPACT_FIELD}
             />
           </Field>
           <Field label="Year range" className="sm:col-span-2">
@@ -401,35 +418,37 @@ export function VehicleFormModal({
               onChange={(e) => setYearRange(e.target.value)}
               placeholder="2012–2019"
               autoComplete="off"
+              className={COMPACT_FIELD}
             />
           </Field>
         </div>
 
-        <section className="space-y-3">
-          <div>
-            <h3 className="text-sm font-semibold text-primary">
+        <section className="space-y-2">
+          <div className="space-y-0.5">
+            <h3 className="text-xs font-semibold text-primary">
               Products that fit this vehicle
             </h3>
-            <p className="mt-1 text-xs text-secondary">
+            <p className="text-[0.65rem] leading-snug text-secondary">
               Search inventory and add SKUs. Shown in the parts catalog for this chassis.
             </p>
           </div>
 
-          <div className="rounded-xl border border-secondary/15 bg-background/40 p-4">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-primary">
+          <div className="rounded-lg border border-secondary/15 bg-background/40 p-3">
+            <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
               Copy fitment from another vehicle
             </p>
-            <p className="mt-1 text-xs text-secondary">
+            <p className="mt-0.5 text-[0.65rem] leading-snug text-secondary">
               Import every product linked to a chassis you already maintain. Existing SKUs in
               this list are skipped.
             </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start">
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
               <SearchField
                 value={mergeSearch}
                 onChange={(e) => setMergeSearch(e.target.value)}
                 placeholder="Type to filter by brand, series, or chassis…"
-                leftAdornment={<Search className="size-4" strokeWidth={2} />}
-                className="min-w-0 flex-1"
+                leftAdornment={<Search className="size-3.5" strokeWidth={2} />}
+                className="min-h-9 min-w-0 flex-1 rounded-lg shadow-none focus-within:shadow-none"
+                inputClassName="min-h-8 py-1 text-xs leading-snug focus-visible:!ring-0"
               />
               <Button
                 type="button"
@@ -444,7 +463,7 @@ export function VehicleFormModal({
               </Button>
             </div>
             {mergeSource ? (
-              <p className="mt-2 text-xs text-foreground">
+              <p className="mt-1.5 text-[0.65rem] text-foreground">
                 Source:{" "}
                 <strong>
                   {mergeSource.brand} {mergeSource.chassisCode}
@@ -452,26 +471,27 @@ export function VehicleFormModal({
                 ({mergeSource.fitmentCount ?? 0} items)
               </p>
             ) : (
-              <p className="mt-2 text-xs text-secondary">
+              <p className="mt-1.5 text-[0.65rem] text-secondary">
                 {mode === "add"
                   ? "Select a source below; fitments copy when you save the new vehicle."
                   : "Select a source, then click Merge catalog to copy immediately."}
               </p>
             )}
-            <ul className="mt-2 max-h-36 overflow-y-auto rounded-lg border border-secondary/10 bg-white">
+            <ul className="mt-1.5 max-h-36 overflow-y-auto rounded-lg border border-secondary/10 bg-white">
               {mergeList.loading ? (
-                <li className="px-3 py-3 text-xs text-secondary">Loading…</li>
+                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">Loading…</li>
               ) : mergeCandidates.length === 0 ? (
-                <li className="px-3 py-3 text-xs text-secondary">No vehicles found.</li>
+                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">No vehicles found.</li>
               ) : (
                 mergeCandidates.map((v) => (
                   <li key={v.id}>
                     <button
                       type="button"
                       onClick={() => setMergeSource(v)}
-                      className={`flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-xs transition-colors hover:bg-primary/5 ${
-                        mergeSource?.id === v.id ? "bg-accent/10" : ""
-                      }`}
+                      className={clsx(
+                        "flex w-full flex-col items-start gap-0.5 px-2.5 py-1.5 text-left text-[0.65rem] transition-colors hover:bg-primary/5",
+                        mergeSource?.id === v.id && "bg-accent/10",
+                      )}
                     >
                       <span className="font-medium text-foreground">
                         {v.brand} · {v.chassisCode}
@@ -487,32 +507,33 @@ export function VehicleFormModal({
           </div>
 
           <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-primary">
+            <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
               Add from inventory
             </p>
             <SearchField
               value={inventorySearch}
               onChange={(e) => setInventorySearch(e.target.value)}
               placeholder="SKU, name, or brand…"
-              leftAdornment={<Search className="size-4" strokeWidth={2} />}
-              className="mt-2"
+              leftAdornment={<Search className="size-3.5" strokeWidth={2} />}
+              className="mt-1.5 min-h-9 rounded-lg shadow-none focus-within:shadow-none"
+              inputClassName="min-h-8 py-1 text-xs leading-snug focus-visible:!ring-0"
             />
-            <ul className="mt-2 max-h-44 overflow-y-auto rounded-lg border border-secondary/10 bg-white">
+            <ul className="mt-1.5 max-h-40 overflow-y-auto rounded-lg border border-secondary/10 bg-white">
               {inventoryLoading ? (
-                <li className="px-3 py-3 text-xs text-secondary">Searching…</li>
+                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">Searching…</li>
               ) : debouncedInventorySearch.trim().length < 1 ? (
-                <li className="px-3 py-3 text-xs text-secondary">
+                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">
                   Type at least one character to search.
                 </li>
               ) : inventoryHits.length === 0 ? (
-                <li className="px-3 py-3 text-xs text-secondary">No products found.</li>
+                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">No products found.</li>
               ) : (
                 inventoryHits.map((p) => (
                   <li key={p.id}>
                     <button
                       type="button"
                       onClick={() => addLinked(p)}
-                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-xs transition-colors hover:bg-primary/5"
+                      className="flex w-full flex-col items-start gap-0.5 px-2.5 py-1.5 text-left text-[0.65rem] transition-colors hover:bg-primary/5"
                     >
                       <span className="font-mono text-secondary">{p.sku}</span>
                       <span className="font-medium text-foreground">{p.nameEn}</span>
@@ -525,19 +546,19 @@ export function VehicleFormModal({
           </div>
 
           <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-primary">
+            <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
               Linked products ({linkedProducts.length})
             </p>
             {linkedProducts.length === 0 ? (
-              <div className="mt-2 rounded-xl border border-dashed border-secondary/30 bg-background/50 px-4 py-8 text-center text-sm text-secondary">
+              <div className="mt-1.5 rounded-lg border border-dashed border-secondary/30 bg-background/50 px-3 py-4 text-center text-xs text-secondary">
                 None yet — add from inventory above.
               </div>
             ) : (
-              <ul className="mt-2 divide-y divide-secondary/10 rounded-xl border border-secondary/15 bg-white">
+              <ul className="mt-1.5 max-h-44 divide-y divide-secondary/10 overflow-y-auto rounded-lg border border-secondary/15 bg-white">
                 {linkedProducts.map((p) => (
                   <li
                     key={p.id}
-                    className="flex items-center justify-between gap-2 px-3 py-2 text-xs"
+                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 text-[0.65rem]"
                   >
                     <div>
                       <div className="font-mono text-secondary">{p.sku}</div>
@@ -547,7 +568,7 @@ export function VehicleFormModal({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="shrink-0 text-red-700"
+                      className="shrink-0 px-2 text-red-700"
                       onClick={() => void removeLinked(p.id)}
                     >
                       Remove
@@ -576,11 +597,11 @@ function Field({
 }>) {
   return (
     <div className={className}>
-      <Label className="text-[0.65rem] font-semibold uppercase tracking-wide text-primary">
+      <Label className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
         {label}
         {optional ? <span className="ms-1 font-normal normal-case text-secondary">(optional)</span> : null}
       </Label>
-      <div className="mt-1.5">{children}</div>
+      <div className="mt-1">{children}</div>
     </div>
   );
 }
