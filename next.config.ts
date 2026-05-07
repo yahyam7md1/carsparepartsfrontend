@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${apiProxyTarget}/api/:path*`,
       },
+      /**
+       * Backend stores images under PUBLIC_UPLOAD_MOUNT (default `/uploads`). The API
+       * returns relative paths; without this, `img src="/uploads/..."` hits Next (404).
+       */
+      {
+        source: "/uploads/:path*",
+        destination: `${apiProxyTarget}/uploads/:path*`,
+      },
     ];
   },
 };

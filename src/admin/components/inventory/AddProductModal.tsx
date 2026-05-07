@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ImageIcon, Plus, Search, X } from "lucide-react";
+import { ChevronDown, Expand, ImageIcon, Plus, Search, Trash2, X } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -10,10 +10,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { ProductDetail, AdminVehicleListRow } from "@/lib/api/types";
+import type { ProductDetail, AdminVehicleListRow, ProductImagePreview } from "@/lib/api/types";
 import type { AdminCategoryRow } from "@/lib/api/services/adminCategories";
 import {
   createAdminProduct,
+  deleteAdminProductImage,
   fetchProductAdmin,
   replaceAdminProductFitments,
   updateAdminProduct,
@@ -69,6 +70,15 @@ type Props = Readonly<{
   onClose: () => void;
   onSaved: () => void;
 }>;
+
+/** Same ordering as list/detail: main first, then sortOrder, then id. */
+function sortProductImages(images: ProductImagePreview[]): ProductImagePreview[] {
+  return [...images].sort((a, b) => {
+    if (a.isMain !== b.isMain) return a.isMain ? -1 : 1;
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+    return a.id.localeCompare(b.id);
+  });
+}
 
 function applyProductToForm(
   p: ProductDetail,
@@ -167,6 +177,10 @@ export function AddProductModal({
   const [vehicleLabels, setVehicleLabels] = useState<Record<number, string>>({});
 
   const [files, setFiles] = useState<File[]>([]);
+  /** Persisted images (edit mode); updated after loads, deletes, and each upload. */
+  const [existingImages, setExistingImages] = useState<ProductImagePreview[]>([]);
+  const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -185,6 +199,19 @@ export function AddProductModal({
     };
   }, [imagePreviewUrls]);
 
+  useEffect(() => {
+    if (!open) setLightboxSrc(null);
+  }, [open]);
+
+  useEffect(() => {
+    if (!lightboxSrc) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxSrc(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxSrc]);
+
   const reset = useCallback(() => {
     setSku("");
     setOemNumber("");
@@ -201,6 +228,9 @@ export function AddProductModal({
     setVehicleIds([]);
     setVehicleLabels({});
     setFiles([]);
+    setExistingImages([]);
+    setDeletingImageId(null);
+    setLightboxSrc(null);
     setError(null);
     setLoadError(null);
   }, []);
@@ -233,6 +263,7 @@ export function AddProductModal({
           setVehicleIds,
           setVehicleLabels,
         });
+        setExistingImages(sortProductImages(p.images));
         setFiles([]);
         setVehicleSearch("");
         setFitmentComboOpen(false);
@@ -274,6 +305,26 @@ export function AddProductModal({
       return rest;
     });
   }, []);
+
+  const deleteExistingImage = useCallback(
+    async (img: ProductImagePreview) => {
+      if (mode !== "edit" || !productId) return;
+      const ok = window.confirm("Remove this image from the product?");
+      if (!ok) return;
+      setError(null);
+      setDeletingImageId(img.id);
+      try {
+        await deleteAdminProductImage(productId, img.id);
+        setExistingImages((prev) => prev.filter((i) => i.id !== img.id));
+        onSaved();
+      } catch (e) {
+        setError(isApiError(e) ? e.message : e instanceof Error ? e.message : "Delete failed");
+      } finally {
+        setDeletingImageId(null);
+      }
+    },
+    [mode, productId, onSaved],
+  );
 
   const handleSubmit = useCallback(async () => {
     setError(null);
@@ -344,9 +395,10 @@ export function AddProductModal({
 
       for (let i = 0; i < files.length; i += 1) {
         const f = files[i]!;
-        await uploadAdminProductImage(id, f, {
+        const detail = await uploadAdminProductImage(id, f, {
           isMain: i === 0 && mode === "add",
         });
+        setExistingImages(sortProductImages(detail.images));
       }
 
       await replaceAdminProductFitments(id, vehicleIds);
@@ -380,6 +432,7 @@ export function AddProductModal({
   ]);
 
   return (
+    <>
     <WideModal
       open={open}
       onClose={onClose}
@@ -623,58 +676,148 @@ export function AddProductModal({
           <h3 className="text-[0.7rem] font-bold uppercase tracking-wide text-primary">
             Product images
           </h3>
-          <div className="mt-2 space-y-2">
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary/30 bg-background/50 px-4 py-4 text-center text-xs text-secondary">
-            <ImageIcon className="size-7 stroke-1 text-secondary" aria-hidden />
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              className="sr-only"
-              onChange={(e) => {
-                const list = Array.from(e.target.files ?? []);
-                setFiles((prev) => [...prev, ...list]);
-                e.target.value = "";
-              }}
-            />
-            <span className="max-w-sm leading-snug">
-              Drag &amp; drop images here or click to browse · multiple files · first image is
-              catalog main on create
-            </span>
-          </label>
-          {files.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {files.map((f, ui) => (
-                <div
-                  key={`${f.name}-${f.size}-${f.lastModified}-${ui}`}
-                  className="group/thumb relative"
-                >
-                  <div className="size-12 overflow-hidden rounded-md border border-secondary/20 bg-secondary/5">
-                    {imagePreviewUrls[ui] ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- local object URLs from file picker
-                      <img
-                        src={imagePreviewUrls[ui]}
-                        alt=""
-                        className="size-full object-cover"
-                      />
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full border border-secondary/30 bg-white text-secondary shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-700"
-                    aria-label={`Remove ${f.name}`}
-                    onClick={() => setFiles((prev) => prev.filter((_, j) => j !== ui))}
-                  >
-                    <X className="size-3" strokeWidth={2.5} />
-                  </button>
+          <div className="mt-2 space-y-3">
+            {mode === "edit" && existingImages.length > 0 ? (
+              <div>
+                <p className="mb-2 text-[0.65rem] leading-snug text-secondary">
+                  Saved images — click a thumbnail to view full size. Trash removes it immediately.
+                  The badge marks the catalog main image.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {existingImages.map((img) => {
+                    const busy = submitting || deletingImageId !== null;
+                    return (
+                      <div
+                        key={img.id}
+                        className="group/saved relative"
+                      >
+                        <button
+                          type="button"
+                          className="relative size-14 overflow-hidden rounded-md border border-secondary/25 bg-secondary/5 ring-offset-2 transition hover:ring-2 hover:ring-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:opacity-50"
+                          disabled={busy}
+                          onClick={() => setLightboxSrc(img.urlLarge)}
+                          aria-label={img.isMain ? "View main image large" : "View image large"}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element -- API upload URLs */}
+                          <img
+                            src={img.urlThumb}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                          {img.isMain ? (
+                            <span className="absolute left-0.5 top-0.5 rounded bg-primary px-1 py-px text-[0.5rem] font-bold uppercase leading-none text-white">
+                              Main
+                            </span>
+                          ) : null}
+                          <span className="absolute bottom-0.5 right-0.5 rounded bg-black/55 p-0.5 text-white opacity-0 transition group-hover/saved:opacity-100">
+                            <Expand className="size-3" aria-hidden />
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full border border-secondary/30 bg-white text-secondary shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+                          aria-label="Delete image"
+                          disabled={busy}
+                          onClick={() => void deleteExistingImage(img)}
+                        >
+                          <Trash2 className="size-3" strokeWidth={2.5} />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          ) : null}
+              </div>
+            ) : null}
+            {mode === "edit" && existingImages.length === 0 && !loadError ? (
+              <p className="text-[0.65rem] text-secondary">No saved images yet — add files below.</p>
+            ) : null}
+
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary/30 bg-background/50 px-4 py-4 text-center text-xs text-secondary">
+              <ImageIcon className="size-7 stroke-1 text-secondary" aria-hidden />
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="sr-only"
+                disabled={submitting}
+                onChange={(e) => {
+                  const list = Array.from(e.target.files ?? []);
+                  setFiles((prev) => [...prev, ...list]);
+                  e.target.value = "";
+                }}
+              />
+              <span className="max-w-sm leading-snug">
+                Drag &amp; drop images here or click to browse · JPEG / PNG / WebP · On{" "}
+                <strong>create</strong>, the first file becomes main. On <strong>edit</strong>, new
+                files append; main is unchanged unless you delete the main image.
+              </span>
+            </label>
+            {files.length > 0 ? (
+              <div>
+                <p className="mb-1.5 text-[0.65rem] font-medium text-foreground">
+                  New files (added when you save)
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {files.map((f, ui) => (
+                    <div
+                      key={`${f.name}-${f.size}-${f.lastModified}-${ui}`}
+                      className="group/thumb relative"
+                    >
+                      <div className="size-12 overflow-hidden rounded-md border border-secondary/20 bg-secondary/5">
+                        {imagePreviewUrls[ui] ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- local object URLs from file picker
+                          <img
+                            src={imagePreviewUrls[ui]}
+                            alt=""
+                            className="size-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full border border-secondary/30 bg-white text-secondary shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                        aria-label={`Remove ${f.name}`}
+                        disabled={submitting}
+                        onClick={() => setFiles((prev) => prev.filter((_, j) => j !== ui))}
+                      >
+                        <X className="size-3" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
     </WideModal>
+
+    {lightboxSrc ? (
+      <div
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Image preview"
+        onClick={() => setLightboxSrc(null)}
+      >
+        <button
+          type="button"
+          className="absolute right-4 top-4 z-10 rounded-lg bg-white/95 p-2 text-foreground shadow-md hover:bg-white"
+          aria-label="Close preview"
+          onClick={() => setLightboxSrc(null)}
+        >
+          <X className="size-5" />
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element -- full-size preview from API */}
+        <img
+          src={lightboxSrc}
+          alt=""
+          className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    ) : null}
+    </>
   );
 }
 
