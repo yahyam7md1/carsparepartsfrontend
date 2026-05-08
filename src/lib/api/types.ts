@@ -116,3 +116,20 @@ export type AdminStats = {
   lowStockCount: number;
   featuredProductCount: number;
 };
+
+export type AdminLowStockRow = {
+  id: string;
+  sku: string;
+  nameEn: string;
+  nameAr: string;
+  stockQuantity: number;
+  movementClass: "slow" | "medium" | "fast";
+  lowStockIgnored: boolean;
+};
+
+export type AdminLowStockRowsResponse = {
+  rows: AdminLowStockRow[];
+  total: number;
+  page: number;
+  limit: number;
+};

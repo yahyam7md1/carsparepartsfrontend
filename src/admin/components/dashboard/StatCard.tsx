@@ -4,10 +4,10 @@ import type { LucideIcon } from "lucide-react";
 type Tone = "default" | "warning" | "danger" | "accent";
 
 const toneClasses: Record<Tone, string> = {
-  default: "text-primary",
-  warning: "text-amber-600",
-  danger: "text-red-600",
-  accent: "text-blue-600",
+  default: "bg-secondary/15",
+  warning: "bg-secondary/15",
+  danger: "bg-secondary/15",
+  accent: "bg-secondary/15",
 };
 
 type Props = Readonly<{
@@ -32,26 +32,26 @@ export function StatCard({
   loading = false,
 }: Props) {
   return (
-    <article className="rounded-2xl border border-secondary/15 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-center gap-3">
+    <article className="rounded-2xl border border-secondary/20 bg-white p-6 shadow-[0_6px_14px_rgba(15,23,42,0.08)]">
+      <div className="flex items-center gap-6">
         <div
           className={clsx(
-            "flex size-10 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-secondary/15",
+            "flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-secondary/20 shadow-[0_2px_6px_rgba(15,23,42,0.10)]",
             toneClasses[tone],
           )}
         >
-          <Icon className="size-5" strokeWidth={1.8} />
+          <Icon className="h-8 w-8 text-primary" strokeWidth={2.15} />
         </div>
-        <div className="min-w-0">
-          <p className="text-xs font-semibold text-secondary">{title}</p>
+        <div className="flex min-w-0 flex-col justify-center">
           {loading ? (
-            <div className="mt-1 h-6 w-20 animate-pulse rounded bg-secondary/15" />
+            <div className="h-8 w-24 animate-pulse rounded bg-secondary/15" />
           ) : (
-            <p className="mt-0.5 text-3xl font-semibold leading-none text-foreground">
+            <p className="text-3xl font-semibold font-mono leading-none text-primary">
               {formatCount(value)}
             </p>
           )}
-          {subtitle ? <p className="mt-0.5 text-xs text-secondary">{subtitle}</p> : null}
+          <p className="mt-1.5 text-sm font-medium leading-none text-secondary">{title}</p>
+          {subtitle ? <p className="mt-0.5 text-[11px] text-secondary">{subtitle}</p> : null}
         </div>
       </div>
     </article>

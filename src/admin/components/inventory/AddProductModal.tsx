@@ -52,7 +52,7 @@ const INPUT_CONTROL = "h-9 min-h-9 py-1.5 text-xs leading-snug";
  * Native &lt;select&gt; needs extra vertical room; `h-8`+tight padding clips text on Windows.
  */
 const SELECT_CONTROL =
-  "h-auto min-h-9 py-1.5 pe-9 text-xs leading-normal [line-height:1.35rem]";
+  "w-full h-auto min-h-9 rounded-lg border border-secondary/25 bg-background px-2.5 py-1.5 pe-9 text-xs leading-normal text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-accent/35 [line-height:1.35rem]";
 
 /** Bilingual descriptions: grow to fill space below name row (paired column is stretch-aligned). */
 const BILINGUAL_DESC_TEXTAREA =
@@ -696,7 +696,7 @@ export function AddProductModal({
                   />
                 </Field>
               </div>
-              <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="grid min-h-0 flex-1 grid-cols-1 gap-2">
                 <Field
                   label="Description (EN)"
                   className="flex min-h-0 flex-col lg:h-full"

@@ -1,11 +1,20 @@
 "use client";
 
-import { AlertTriangle, Boxes, PackageX, Star } from "lucide-react";
+import { useCallback } from "react";
+import { AlertTriangle, Package, PackageX, Star } from "lucide-react";
+import { LowStockAlertCard } from "@/admin/components/dashboard/LowStockAlertCard";
+import { RecentlyAddedProductsCard } from "@/admin/components/dashboard/RecentlyAddedProductsCard";
 import { StatCard } from "@/admin/components/dashboard/StatCard";
-import { useAdminStats } from "@/hooks";
+import { useAdminLowStockRows, useAdminProducts, useAdminStats } from "@/hooks";
 
 export function AdminDashboardView() {
-  const { data, loading, error } = useAdminStats();
+  const { data, loading, error, refetch } = useAdminStats();
+  const lowStock = useAdminLowStockRows({ params: { page: 1, limit: 10 } });
+  const recentProducts = useAdminProducts({ params: { page: 1, limit: 5 } });
+
+  const refreshDashboardData = useCallback(async () => {
+    await Promise.all([refetch(), lowStock.refetch(), recentProducts.refetch()]);
+  }, [refetch, lowStock, recentProducts]);
 
   return (
     <section className="space-y-4">
@@ -20,33 +29,47 @@ export function AdminDashboardView() {
         </p>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-4 gap-6">
         <StatCard
           title="Total Products"
           value={data?.totalProducts ?? 0}
-          icon={Boxes}
+          icon={Package}
           loading={loading}
         />
         <StatCard
           title="Out of Stock"
           value={data?.outOfStockCount ?? 0}
           icon={PackageX}
-          tone="danger"
+          tone="default"
           loading={loading}
         />
         <StatCard
           title="Low Stock Alert"
           value={data?.lowStockCount ?? 0}
           icon={AlertTriangle}
-          tone="warning"
+          tone="default"
           loading={loading}
         />
         <StatCard
           title="Featured Items"
           value={data?.featuredProductCount ?? 0}
           icon={Star}
-          tone="accent"
+          tone="default"
           loading={loading}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <LowStockAlertCard
+          rows={lowStock.data?.rows ?? []}
+          loading={lowStock.loading}
+          error={lowStock.error ? lowStock.error.message : null}
+          onChanged={refreshDashboardData}
+        />
+        <RecentlyAddedProductsCard
+          rows={recentProducts.data?.products ?? []}
+          loading={recentProducts.loading}
+          error={recentProducts.error ? recentProducts.error.message : null}
         />
       </div>
     </section>
