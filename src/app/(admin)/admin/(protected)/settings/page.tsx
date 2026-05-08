@@ -1,5 +1,5 @@
-import { AdminPlaceholderView } from "@/admin/views/AdminPlaceholderView";
+import { SettingsView } from "@/admin/views/SettingsView";
 
 export default function AdminSettingsPage() {
-  return <AdminPlaceholderView title="Settings" />;
+  return <SettingsView />;
 }

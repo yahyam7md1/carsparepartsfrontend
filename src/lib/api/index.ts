@@ -64,3 +64,5 @@ export {
   logoutRequest,
 } from "./services/auth";
 export type { AdminUser, AdminLoginResponse } from "./types/auth";
+export type { AdminShopSettings, PatchShopSettingsBody } from "./services/adminSettings";
+export { fetchAdminShopSettings, patchAdminShopSettings } from "./services/adminSettings";
