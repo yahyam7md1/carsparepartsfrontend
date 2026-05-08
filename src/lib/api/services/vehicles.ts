@@ -21,6 +21,8 @@ export type CreateVehicleBody = {
   specifics: string;
   chassisCode: string;
   yearRange: string;
+  /** Optional model generation / facelift label (e.g. LCI). */
+  generation?: string | null;
   nameEn?: string;
   nameAr?: string;
 };

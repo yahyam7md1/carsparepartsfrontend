@@ -56,6 +56,7 @@ export function VehicleFormModal({
   const [specifics, setSpecifics] = useState("");
   const [chassisCode, setChassisCode] = useState("");
   const [yearRange, setYearRange] = useState("");
+  const [generation, setGeneration] = useState("");
 
   const [mergeSearch, setMergeSearch] = useState("");
   const debouncedMergeSearch = useDebouncedValue(mergeSearch, 300);
@@ -87,6 +88,7 @@ export function VehicleFormModal({
     setSpecifics("");
     setChassisCode("");
     setYearRange("");
+    setGeneration("");
     setMergeSearch("");
     setMergeSource(null);
     setInventorySearch("");
@@ -104,6 +106,7 @@ export function VehicleFormModal({
       setSpecifics(vehicle.specifics);
       setChassisCode(vehicle.chassisCode);
       setYearRange(vehicle.yearRange);
+      setGeneration(vehicle.generation ?? "");
       setMergeSource(null);
       setMergeSearch("");
       setInventorySearch("");
@@ -252,6 +255,7 @@ export function VehicleFormModal({
     const sp = specifics.trim();
     const c = chassisCode.trim();
     const y = yearRange.trim();
+    const genRaw = generation.trim();
     if (!b || !s || !sp || !c || !y) {
       setError("Select a make and fill series, specifics, chassis, and year range.");
       return;
@@ -266,6 +270,7 @@ export function VehicleFormModal({
           specifics: sp,
           chassisCode: c,
           yearRange: y,
+          generation: genRaw ? genRaw : null,
         });
         vehicleId = created.id;
         if (
@@ -285,6 +290,7 @@ export function VehicleFormModal({
           specifics: sp,
           chassisCode: c,
           yearRange: y,
+          generation: genRaw ? genRaw : null,
         });
         vehicleId = vehicle.id;
       }
@@ -312,6 +318,7 @@ export function VehicleFormModal({
     specifics,
     chassisCode,
     yearRange,
+    generation,
     mode,
     vehicle,
     mergeSource,
@@ -412,7 +419,16 @@ export function VehicleFormModal({
               className={COMPACT_FIELD}
             />
           </Field>
-          <Field label="Year range" className="sm:col-span-2">
+          <Field label="Generation" optional>
+            <Input
+              value={generation}
+              onChange={(e) => setGeneration(e.target.value)}
+              placeholder="e.g. pre-LCI, Mk7.5"
+              autoComplete="off"
+              className={COMPACT_FIELD}
+            />
+          </Field>
+          <Field label="Year range">
             <Input
               value={yearRange}
               onChange={(e) => setYearRange(e.target.value)}

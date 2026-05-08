@@ -188,7 +188,7 @@ export function ProductCatalogTable({
             ) : (
               products.map((p) => {
                 const thumb = mainThumb(p);
-                const oemCount = p.oemNumber?.trim() ? 1 : 0;
+                const oemCount = p.oems?.length ?? 0;
                 const fitCount = p.fitmentCount ?? 0;
                 const path = categoryBreadcrumbEn(p.categoryId, categories);
 

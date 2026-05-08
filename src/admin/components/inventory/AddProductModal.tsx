@@ -10,7 +10,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { ProductDetail, AdminVehicleListRow, ProductImagePreview } from "@/lib/api/types";
+import type {
+  ProductDetail,
+  AdminVehicleListRow,
+  ProductImagePreview,
+  ProductOemRow,
+} from "@/lib/api/types";
 import type { AdminCategoryRow } from "@/lib/api/services/adminCategories";
 import {
   createAdminProduct,
@@ -43,9 +48,18 @@ const SECTION_CARD =
 /** Single-line text/number inputs — fixed height is OK. */
 const INPUT_CONTROL = "h-9 min-h-9 py-1.5 text-xs leading-snug";
 
+/**
+ * Native &lt;select&gt; needs extra vertical room; `h-8`+tight padding clips text on Windows.
+ */
+const SELECT_CONTROL =
+  "h-auto min-h-9 py-1.5 pe-9 text-xs leading-normal [line-height:1.35rem]";
+
 /** Bilingual descriptions: grow to fill space below name row (paired column is stretch-aligned). */
 const BILINGUAL_DESC_TEXTAREA =
   "w-full min-h-[4.5rem] flex-1 resize-none rounded-lg border border-secondary/25 bg-background px-2.5 py-2 text-xs leading-snug text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-accent/35";
+
+const OEM_LIST_TEXTAREA =
+  "w-full min-h-[4rem] resize-y rounded-lg border border-secondary/25 bg-background px-2.5 py-2 text-xs leading-snug text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-accent/35";
 
 /** Vehicle combobox shell — no outer shadow; avoids stacked box with inner input. */
 const SEARCH_COMBO_CLASS =
@@ -56,6 +70,7 @@ const SEARCH_INPUT_CLASS =
 
 /** Default part brand when the admin form no longer collects it (vehicle fitment covers car make). */
 const DEFAULT_PART_BRAND = "Aftermarket";
+type MovementClass = "slow" | "medium" | "fast";
 
 type Props = Readonly<{
   open: boolean;
@@ -77,12 +92,39 @@ function sortProductImages(images: ProductImagePreview[]): ProductImagePreview[]
   });
 }
 
+/** Trim, max 200 chars, de-dupe case-insensitively — mirrors backend normalizeOemValues. */
+function parseOemListFromText(raw: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of raw.split(/[\n,]+/)) {
+    const v = part.trim().slice(0, 200);
+    if (!v) continue;
+    const key = v.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(v);
+  }
+  return out;
+}
+
+function formatOemsForForm(oems: ProductOemRow[]): string {
+  return [...oems]
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id))
+    .map((o) => o.value)
+    .join("\n");
+}
+
+function isMovementClass(value: string): value is MovementClass {
+  return value === "slow" || value === "medium" || value === "fast";
+}
+
 function applyProductToForm(
   p: ProductDetail,
   setters: {
     setSku: (v: string) => void;
-    setOemNumber: (v: string) => void;
     setBrandName: (v: string) => void;
+    setOemLines: (v: string) => void;
+    setMovementClass: (v: MovementClass) => void;
     setCategoryId: (v: string) => void;
     setPrice: (v: string) => void;
     setStock: (v: string) => void;
@@ -98,8 +140,9 @@ function applyProductToForm(
   },
 ) {
   setters.setSku(p.sku);
-  setters.setOemNumber(p.oemNumber ?? "");
   setters.setBrandName(p.brandName?.trim() ? p.brandName : DEFAULT_PART_BRAND);
+  setters.setOemLines(formatOemsForForm(p.oems ?? []));
+  setters.setMovementClass(p.movementClass ?? "medium");
   setters.setCategoryId(String(p.categoryId));
   setters.setPrice(p.price);
   setters.setStock(String(p.stockQuantity));
@@ -159,8 +202,9 @@ export function AddProductModal({
   const comboWrapRef = useRef<HTMLDivElement>(null);
 
   const [sku, setSku] = useState("");
-  const [oemNumber, setOemNumber] = useState("");
   const [brandName, setBrandName] = useState(DEFAULT_PART_BRAND);
+  const [oemLines, setOemLines] = useState("");
+  const [movementClass, setMovementClass] = useState<MovementClass>("medium");
   const [categoryId, setCategoryId] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("0");
@@ -220,8 +264,9 @@ export function AddProductModal({
 
   const reset = useCallback(() => {
     setSku("");
-    setOemNumber("");
     setBrandName(DEFAULT_PART_BRAND);
+    setOemLines("");
+    setMovementClass("medium");
     setCategoryId("");
     setPrice("");
     setStock("0");
@@ -260,8 +305,9 @@ export function AddProductModal({
         if (cancelled) return;
         applyProductToForm(p, {
           setSku,
-          setOemNumber,
           setBrandName,
+          setOemLines,
+          setMovementClass,
           setCategoryId,
           setPrice,
           setStock,
@@ -384,15 +430,18 @@ export function AddProductModal({
     const dimensionsTrimmed = dimensions.trim();
     const manufacturedTrimmed = manufacturedIn.trim();
 
-    const oem = oemNumber.trim() ? oemNumber.trim() : null;
-
+    const oemNumbers = parseOemListFromText(oemLines);
+    if (oemNumbers.length > 50) {
+      setError("At most 50 OEM numbers are allowed.");
+      return;
+    }
     setSubmitting(true);
     try {
       let id: string;
       if (mode === "add") {
         const created = await createAdminProduct({
           sku: skuT,
-          oemNumber: oem,
+          oemNumbers,
           categoryId: cat,
           brandName: brandT,
           nameEn: nameEnT,
@@ -401,6 +450,7 @@ export function AddProductModal({
           descAr: descAr.trim() || null,
           price: priceN,
           stockQuantity: stockN,
+          movementClass,
           isActive: true,
           isFeatured: false,
           dimensions: dimensionsTrimmed || null,
@@ -412,7 +462,7 @@ export function AddProductModal({
         if (!productId) return;
         await updateAdminProduct(productId, {
           sku: skuT,
-          oemNumber: oem,
+          oemNumbers,
           categoryId: cat,
           brandName: brandT,
           nameEn: nameEnT,
@@ -421,6 +471,7 @@ export function AddProductModal({
           descAr: descAr.trim() || null,
           price: priceN,
           stockQuantity: stockN,
+          movementClass,
           dimensions: dimensionsTrimmed || null,
           weight: weightNum,
           manufacturedIn: manufacturedTrimmed || null,
@@ -448,11 +499,12 @@ export function AddProductModal({
     }
   }, [
     sku,
-    oemNumber,
     brandName,
     dimensions,
     weight,
     manufacturedIn,
+    oemLines,
+    movementClass,
     categoryId,
     price,
     stock,
@@ -512,12 +564,13 @@ export function AddProductModal({
                   className={INPUT_CONTROL}
                 />
               </Field>
-              <Field label="OEM number">
-                <Input
-                  value={oemNumber}
-                  onChange={(e) => setOemNumber(e.target.value)}
-                  placeholder="Optional — reference number"
-                  className={INPUT_CONTROL}
+              <Field label="OEM numbers">
+                <textarea
+                  value={oemLines}
+                  onChange={(e) => setOemLines(e.target.value)}
+                  placeholder="One per line or comma-separated — optional reference numbers"
+                  className={OEM_LIST_TEXTAREA}
+                  rows={3}
                 />
               </Field>
               <Field label="Category">
@@ -596,6 +649,24 @@ export function AddProductModal({
                   />
                 </Field>
               </div>
+              <Field label="Movement class">
+                <select
+                  value={movementClass}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    if (isMovementClass(next)) setMovementClass(next);
+                  }}
+                  className={clsx(INPUT_CONTROL, SELECT_CONTROL)}
+                >
+                  <option value="slow">Slow-moving (alert at 0)</option>
+                  <option value="medium">Medium-moving (alert below 3)</option>
+                  <option value="fast">Fast-moving (alert below 7)</option>
+                </select>
+              </Field>
+              <p className="text-[0.65rem] leading-snug text-secondary">
+                Restock thresholds are fixed by movement class: fast-moving items alert earlier,
+                medium in-between, and slow-moving items only when out of stock.
+              </p>
             </div>
           </section>
 
@@ -902,16 +973,23 @@ function Field({
   label,
   className,
   contentClassName,
+  labelClassName,
   children,
 }: Readonly<{
   label: string;
   className?: string;
   contentClassName?: string;
+  labelClassName?: string;
   children: ReactNode;
 }>) {
   return (
     <div className={className}>
-      <Label className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
+      <Label
+        className={clsx(
+          "text-[0.6rem] font-semibold uppercase tracking-wide text-primary",
+          labelClassName,
+        )}
+      >
         {label}
       </Label>
       <div className={clsx("mt-1", contentClassName)}>{children}</div>

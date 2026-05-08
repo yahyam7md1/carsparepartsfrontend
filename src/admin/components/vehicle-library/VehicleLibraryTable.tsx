@@ -34,7 +34,7 @@ export function VehicleLibraryTable({
   return (
     <div className="overflow-hidden rounded-2xl border border-secondary/20 bg-white shadow-sm ring-1 ring-primary/5">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[800px] border-collapse text-left text-sm">
+        <table className="w-full min-w-[920px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-secondary/15 bg-background/80">
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
@@ -50,6 +50,9 @@ export function VehicleLibraryTable({
                 Chassis
               </th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
+                Generation
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
                 Years
               </th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
@@ -63,13 +66,13 @@ export function VehicleLibraryTable({
           <tbody className="divide-y divide-secondary/10">
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={8} className="px-4 py-12 text-center text-secondary">
                   Loading…
                 </td>
               </tr>
             ) : vehicles.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={8} className="px-4 py-12 text-center text-secondary">
                   No vehicles match this search.
                 </td>
               </tr>
@@ -85,6 +88,13 @@ export function VehicleLibraryTable({
                     <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-primary">
                       {v.chassisCode}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 align-top text-secondary">
+                    {v.generation?.trim() ? (
+                      <span className="text-foreground">{v.generation}</span>
+                    ) : (
+                      <span className="text-secondary/70">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 align-top text-foreground">{v.yearRange}</td>
                   <td className="px-4 py-3 align-top">

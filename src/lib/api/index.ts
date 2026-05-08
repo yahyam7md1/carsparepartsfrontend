@@ -10,6 +10,7 @@ export type {
   ProductFitmentsResponse,
   ProductImagePreview,
   ProductListRow,
+  ProductOemRow,
   VehicleDto,
   AdminVehicleListRow,
 } from "./types";
