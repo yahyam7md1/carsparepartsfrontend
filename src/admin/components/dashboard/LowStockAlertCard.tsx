@@ -122,14 +122,17 @@ export function LowStockAlertCard({ rows, loading, error, onChanged }: Props) {
       {!loading && sorted.length > 0 ? (
         <ul className="group divide-y divide-secondary/10">
           {sorted.map((row) => (
-            <li key={row.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-3 py-2">
+            <li
+              key={row.id}
+              className="flex flex-col gap-3 py-3 sm:grid sm:grid-cols-[1fr_auto_auto] sm:items-center sm:gap-3 sm:py-2"
+            >
               <div className="min-w-0">
                 <p className="text-[11px] text-secondary tabular-nums">
                   {row.sku} · {movementLabel(row)}
                 </p>
                 <p className="truncate text-base font-semibold text-foreground">{row.nameEn}</p>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 sm:justify-end">
                 {stockEditId === row.id ? (
                   <Input
                     type="number"
@@ -160,14 +163,14 @@ export function LowStockAlertCard({ rows, loading, error, onChanged }: Props) {
                 )}
                 <button
                   type="button"
-                  className="rounded p-1 text-secondary opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
+                  className="rounded p-1 text-secondary opacity-100 transition-opacity hover:text-primary sm:opacity-0 sm:group-hover:opacity-100"
                   aria-label={`Edit stock for ${row.sku}`}
                   onClick={() => beginStockEdit(row)}
                 >
                   <Pencil className="size-3.5" strokeWidth={2} />
                 </button>
               </div>
-              <div className="flex items-center justify-end">
+              <div className="flex items-center sm:justify-end">
                 <Button type="button" variant="secondary" size="sm" onClick={() => setIgnorePending(row)}>
                   Ignore
                 </Button>

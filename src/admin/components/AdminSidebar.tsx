@@ -80,10 +80,13 @@ function SidebarNavLink({
 function MobileNavLink({
   href,
   label,
+  ariaLabel,
   icon: Icon,
 }: {
   href: string;
   label: string;
+  /** Full name for accessibility (e.g. “Vehicle Library” vs short “Vehicles”). */
+  ariaLabel: string;
   icon: LucideIcon;
 }) {
   const pathname = usePathname();
@@ -95,21 +98,23 @@ function MobileNavLink({
   return (
     <Link
       href={href}
+      title={ariaLabel}
+      aria-label={ariaLabel}
       className={clsx(
-        "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-[0.65rem] font-semibold leading-tight transition-colors",
+        "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-0.5 py-1.5 text-[0.6rem] font-semibold leading-tight transition-colors min-[400px]:px-1 min-[400px]:py-2 min-[400px]:text-[0.65rem]",
         active ? "text-primary" : "text-[#4a5568]",
       )}
       aria-current={active ? "page" : undefined}
     >
       <span
         className={clsx(
-          "flex size-9 shrink-0 items-center justify-center rounded-full transition-colors",
+          "flex size-8 shrink-0 items-center justify-center rounded-full transition-colors min-[400px]:size-9",
           active ? "bg-primary text-white" : "bg-[#eceff3] text-[#4a5568]",
         )}
       >
-        <Icon className="size-[1.15rem] shrink-0 stroke-[1.75]" aria-hidden />
+        <Icon className="size-[1.05rem] shrink-0 stroke-[1.75] min-[400px]:size-[1.15rem]" aria-hidden />
       </span>
-      <span className="line-clamp-2 w-full text-center">{label}</span>
+      <span className="hidden w-full text-center line-clamp-2 min-[380px]:block">{label}</span>
     </Link>
   );
 }
@@ -163,18 +168,21 @@ export function AdminSidebar() {
             key={item.href}
             href={item.href}
             label={"shortLabel" in item ? item.shortLabel : item.label}
+            ariaLabel={item.label}
             icon={item.icon}
           />
         ))}
         <button
           type="button"
           onClick={() => void logout()}
-          className="flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-[0.65rem] font-semibold leading-tight text-red-600/90 transition-colors active:bg-red-50"
+          aria-label="Log out"
+          title="Log out"
+          className="flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-0.5 py-1.5 text-[0.6rem] font-semibold leading-tight text-red-600/90 transition-colors active:bg-red-50 min-[400px]:px-1 min-[400px]:py-2 min-[400px]:text-[0.65rem]"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#eceff3]">
-            <LogOut className="size-[1.15rem] shrink-0" aria-hidden strokeWidth={2} />
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#eceff3] min-[400px]:size-9">
+            <LogOut className="size-[1.05rem] shrink-0 min-[400px]:size-[1.15rem]" aria-hidden strokeWidth={2} />
           </span>
-          <span className="line-clamp-2 w-full text-center">Log out</span>
+          <span className="hidden w-full text-center line-clamp-2 min-[380px]:block">Log out</span>
         </button>
       </nav>
     </>

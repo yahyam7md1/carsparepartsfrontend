@@ -73,7 +73,85 @@ export function CategoryGroupedTable({
           className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/25"
         />
       </div>
-      <div className="overflow-x-auto">
+      <div className="md:hidden divide-y divide-slate-100">
+        {rows.length === 0 ? (
+          <div className="px-4 py-12 text-center text-slate-600">
+            No categories match your search.
+          </div>
+        ) : (
+          rows.map((row, i) => {
+            const productRow = row.child ?? row.parent;
+            const { count: partCount, label: partLabel } = partCountDisplay(
+              row.parent.productCount,
+            );
+            const key = row.child ? `c-${row.child.id}` : `p-${row.parent.id}-${i}`;
+            return (
+              <div key={key} className="space-y-3 px-4 py-4">
+                {row.child ? (
+                  <div className="space-y-2">
+                    <div className="flex gap-3">
+                      <Tag
+                        className="mt-0.5 size-4 shrink-0 text-[var(--primary)]"
+                        aria-hidden
+                      />
+                      <BilingualCell
+                        nameEn={row.parent.nameEn}
+                        nameAr={row.parent.nameAr}
+                      />
+                    </div>
+                    <div className="flex gap-2 border-s-2 border-slate-100 ps-3">
+                      <CornerDownRight
+                        className="mt-1 size-4 shrink-0 text-slate-400"
+                        aria-hidden
+                      />
+                      <BilingualCell
+                        nameEn={row.child.nameEn}
+                        nameAr={row.child.nameAr}
+                        alignAr
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-3">
+                    <Tag
+                      className="mt-0.5 size-4 shrink-0 text-[var(--primary)]"
+                      aria-hidden
+                    />
+                    <BilingualCell
+                      nameEn={row.parent.nameEn}
+                      nameAr={row.parent.nameAr}
+                    />
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900">
+                    {partCount} {partLabel}
+                  </span>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onEdit(productRow)}
+                      className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                      aria-label={`Edit ${productRow.nameEn}`}
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDelete(productRow)}
+                      className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"
+                      aria-label={`Delete ${productRow.nameEn}`}
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[640px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">

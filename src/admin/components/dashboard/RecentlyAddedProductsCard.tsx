@@ -61,8 +61,24 @@ export function RecentlyAddedProductsCard({ rows, loading, error }: Props) {
       ) : null}
 
       {!loading && rows.length > 0 ? (
-        <div className="overflow-hidden rounded-xl">
-          <table className="w-full text-sm">
+        <>
+          <ul className="md:hidden divide-y divide-secondary/10">
+            {rows.map((row) => {
+              const path =
+                categoryBreadcrumbEn(row.categoryId, categories) || row.category.nameEn;
+              return (
+                <li key={row.id} className="space-y-1.5 px-1 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-secondary">
+                    {row.sku}
+                  </p>
+                  <p className="text-sm font-medium text-foreground">{row.nameEn}</p>
+                  <p className="text-xs leading-snug text-secondary">{path}</p>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden overflow-x-auto rounded-xl md:block">
+            <table className="w-full min-w-0 text-sm">
             <thead className="bg-white">
               <tr className="border-b border-secondary/10 text-left">
                 <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-secondary">
@@ -92,7 +108,8 @@ export function RecentlyAddedProductsCard({ rows, loading, error }: Props) {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       ) : null}
     </section>
   );

@@ -33,7 +33,71 @@ export function VehicleLibraryTable({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-secondary/20 bg-white shadow-sm ring-1 ring-primary/5">
-      <div className="overflow-x-auto">
+      <ul className="md:hidden divide-y divide-secondary/10">
+        {loading ? (
+          <li className="px-4 py-12 text-center text-sm text-secondary">Loading…</li>
+        ) : vehicles.length === 0 ? (
+          <li className="px-4 py-12 text-center text-sm text-secondary">
+            No vehicles match this search.
+          </li>
+        ) : (
+          vehicles.map((v) => (
+            <li key={v.id} className="space-y-3 px-3 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1">
+                  <p className="text-base font-semibold text-foreground">{v.brand}</p>
+                  <p className="text-sm text-foreground">{v.series}</p>
+                  <p className="text-xs text-secondary">{v.specifics}</p>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-primary">
+                      {v.chassisCode}
+                    </span>
+                    <span className="text-sm text-foreground">{v.yearRange}</span>
+                  </div>
+                  <p className="text-xs text-secondary">
+                    Generation:{" "}
+                    {v.generation?.trim() ? (
+                      <span className="text-foreground">{v.generation}</span>
+                    ) : (
+                      <span className="text-secondary/70">—</span>
+                    )}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-9 min-w-9 p-0 text-secondary hover:text-primary"
+                    onClick={() => onEdit(v)}
+                    aria-label={`Edit ${v.brand} ${v.chassisCode}`}
+                  >
+                    <Pencil className="size-4" strokeWidth={2} />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-9 min-w-9 p-0 text-secondary hover:text-red-700"
+                    onClick={() => onDelete(v)}
+                    aria-label={`Delete ${v.brand} ${v.chassisCode}`}
+                  >
+                    <Trash2 className="size-4" strokeWidth={2} />
+                  </Button>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenCatalog(v)}
+                className="inline-flex w-full justify-center rounded-full border border-secondary/20 bg-secondary/10 px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-accent/40 hover:bg-accent/10 sm:w-auto sm:justify-start"
+              >
+                {v.fitmentCount ?? 0} {(v.fitmentCount ?? 0) === 1 ? "item" : "items"} in parts catalog
+              </button>
+            </li>
+          ))
+        )}
+      </ul>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[920px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-secondary/15 bg-background/80">
