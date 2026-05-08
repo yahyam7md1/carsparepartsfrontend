@@ -12,3 +12,15 @@ export {
 } from "./wide-modal";
 export { PageJumpControl, type PageJumpControlProps } from "./page-jump-control";
 export { ConfirmModal, type ConfirmModalProps } from "./confirm-modal";
+export {
+  PillBadgeButton,
+  type PillBadgeButtonProps,
+} from "./pill-badge-button";
+export { LabeledSwitch, type LabeledSwitchProps } from "./labeled-switch";
+export {
+  CategoryHierarchyPicker,
+  flattenCategoryTreeForPicker,
+  type CategoryHierarchyPickerLocale,
+  type CategoryHierarchyPickerProps,
+  type CategoryHierarchyPickerRow,
+} from "./category-hierarchy-picker";

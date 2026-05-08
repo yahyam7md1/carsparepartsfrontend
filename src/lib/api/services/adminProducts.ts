@@ -1,5 +1,26 @@
 import { adminApi } from "../adminClient";
-import type { PaginatedProducts, ProductDetail } from "../types";
+import type { PaginatedProducts, ProductDetail, ProductListRow } from "../types";
+
+/**
+ * Admin list should expose `fitmentCount`. Older API builds spread Prisma rows and only
+ * provide `_count.fitments`; normalize so badges stay correct.
+ */
+function normalizeAdminProductListRow(p: ProductListRow): ProductListRow {
+  const raw = p as ProductListRow & {
+    _count?: { fitments?: number };
+    fitment_count?: number;
+  };
+  const explicit =
+    typeof raw.fitmentCount === "number" && !Number.isNaN(raw.fitmentCount)
+      ? raw.fitmentCount
+      : undefined;
+  const nested =
+    typeof raw._count?.fitments === "number" ? raw._count.fitments : undefined;
+  const snake =
+    typeof raw.fitment_count === "number" ? raw.fitment_count : undefined;
+  const fitmentCount = explicit ?? nested ?? snake ?? 0;
+  return { ...p, fitmentCount };
+}
 
 export type AdminProductListParams = {
   page?: number;
@@ -42,7 +63,10 @@ export async function fetchAdminProducts(
   const { data } = await adminApi.get<PaginatedProducts>("/api/admin/products", {
     params,
   });
-  return data;
+  return {
+    ...data,
+    products: data.products.map(normalizeAdminProductListRow),
+  };
 }
 
 export async function fetchProductAdmin(id: string): Promise<ProductDetail> {

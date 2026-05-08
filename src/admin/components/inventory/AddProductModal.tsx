@@ -26,11 +26,12 @@ import { useAdminVehicles } from "@/hooks/useAdminVehicles";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
   Button,
+  CategoryHierarchyPicker,
+  type CategoryHierarchyPickerLocale,
   FieldError,
   Input,
   Label,
   SearchField,
-  Select,
   WideModal,
 } from "@/shared/ui";
 import clsx from "clsx";
@@ -41,12 +42,6 @@ const SECTION_CARD =
 
 /** Single-line text/number inputs — fixed height is OK. */
 const INPUT_CONTROL = "h-9 min-h-9 py-1.5 text-xs leading-snug";
-
-/**
- * Native &lt;select&gt; needs extra vertical room; `h-8`+tight padding clips text on Windows.
- */
-const SELECT_CONTROL =
-  "h-auto min-h-9 py-1.5 pe-9 text-xs leading-normal [line-height:1.35rem]";
 
 /** Bilingual descriptions: grow to fill space below name row (paired column is stretch-aligned). */
 const BILINGUAL_DESC_TEXTAREA =
@@ -69,6 +64,8 @@ type Props = Readonly<{
   categories: AdminCategoryRow[];
   onClose: () => void;
   onSaved: () => void;
+  /** Category picker labels (`en` / `ar`). */
+  locale?: CategoryHierarchyPickerLocale;
 }>;
 
 /** Same ordering as list/detail: main first, then sortOrder, then id. */
@@ -85,10 +82,13 @@ function applyProductToForm(
   setters: {
     setSku: (v: string) => void;
     setOemNumber: (v: string) => void;
-    setReservedPartBrand: (v: string) => void;
+    setBrandName: (v: string) => void;
     setCategoryId: (v: string) => void;
     setPrice: (v: string) => void;
     setStock: (v: string) => void;
+    setDimensions: (v: string) => void;
+    setWeight: (v: string) => void;
+    setManufacturedIn: (v: string) => void;
     setNameEn: (v: string) => void;
     setNameAr: (v: string) => void;
     setDescEn: (v: string) => void;
@@ -99,10 +99,13 @@ function applyProductToForm(
 ) {
   setters.setSku(p.sku);
   setters.setOemNumber(p.oemNumber ?? "");
-  setters.setReservedPartBrand(p.brandName?.trim() ? p.brandName : DEFAULT_PART_BRAND);
+  setters.setBrandName(p.brandName?.trim() ? p.brandName : DEFAULT_PART_BRAND);
   setters.setCategoryId(String(p.categoryId));
   setters.setPrice(p.price);
   setters.setStock(String(p.stockQuantity));
+  setters.setDimensions(p.dimensions ?? "");
+  setters.setWeight(p.weight != null && Number.isFinite(p.weight) ? String(p.weight) : "");
+  setters.setManufacturedIn(p.manufacturedIn ?? "");
   setters.setNameEn(p.nameEn ?? "");
   setters.setNameAr(p.nameAr ?? "");
   setters.setDescEn(p.descEn ?? "");
@@ -150,17 +153,20 @@ export function AddProductModal({
   categories,
   onClose,
   onSaved,
+  locale = "en",
 }: Props) {
   const fitmentComboId = useId();
   const comboWrapRef = useRef<HTMLDivElement>(null);
 
   const [sku, setSku] = useState("");
   const [oemNumber, setOemNumber] = useState("");
-  /** Persisted product `brandName` from API on edit; default for new rows (not shown in UI). */
-  const [reservedPartBrand, setReservedPartBrand] = useState(DEFAULT_PART_BRAND);
+  const [brandName, setBrandName] = useState(DEFAULT_PART_BRAND);
   const [categoryId, setCategoryId] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("0");
+  const [dimensions, setDimensions] = useState("");
+  const [weight, setWeight] = useState("");
+  const [manufacturedIn, setManufacturedIn] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [nameAr, setNameAr] = useState("");
   const [descEn, setDescEn] = useState("");
@@ -215,10 +221,13 @@ export function AddProductModal({
   const reset = useCallback(() => {
     setSku("");
     setOemNumber("");
-    setReservedPartBrand(DEFAULT_PART_BRAND);
+    setBrandName(DEFAULT_PART_BRAND);
     setCategoryId("");
     setPrice("");
     setStock("0");
+    setDimensions("");
+    setWeight("");
+    setManufacturedIn("");
     setNameEn("");
     setNameAr("");
     setDescEn("");
@@ -252,10 +261,13 @@ export function AddProductModal({
         applyProductToForm(p, {
           setSku,
           setOemNumber,
-          setReservedPartBrand,
+          setBrandName,
           setCategoryId,
           setPrice,
           setStock,
+          setDimensions,
+          setWeight,
+          setManufacturedIn,
           setNameEn,
           setNameAr,
           setDescEn,
@@ -354,8 +366,25 @@ export function AddProductModal({
       setError("Stock must be a valid non-negative integer.");
       return;
     }
+    const brandT = brandName.trim();
+    if (!brandT) {
+      setError("Brand is required.");
+      return;
+    }
+    let weightNum: number | null = null;
+    const weightTrim = weight.trim();
+    if (weightTrim !== "") {
+      const w = Number.parseFloat(weightTrim);
+      if (!Number.isFinite(w) || w <= 0) {
+        setError("Weight must be a positive number when provided.");
+        return;
+      }
+      weightNum = w;
+    }
+    const dimensionsTrimmed = dimensions.trim();
+    const manufacturedTrimmed = manufacturedIn.trim();
+
     const oem = oemNumber.trim() ? oemNumber.trim() : null;
-    const brandT = reservedPartBrand.trim() || DEFAULT_PART_BRAND;
 
     setSubmitting(true);
     try {
@@ -374,6 +403,9 @@ export function AddProductModal({
           stockQuantity: stockN,
           isActive: true,
           isFeatured: false,
+          dimensions: dimensionsTrimmed || null,
+          weight: weightNum,
+          manufacturedIn: manufacturedTrimmed || null,
         });
         id = created.id;
       } else {
@@ -389,6 +421,9 @@ export function AddProductModal({
           descAr: descAr.trim() || null,
           price: priceN,
           stockQuantity: stockN,
+          dimensions: dimensionsTrimmed || null,
+          weight: weightNum,
+          manufacturedIn: manufacturedTrimmed || null,
         });
         id = productId;
       }
@@ -414,7 +449,10 @@ export function AddProductModal({
   }, [
     sku,
     oemNumber,
-    reservedPartBrand,
+    brandName,
+    dimensions,
+    weight,
+    manufacturedIn,
     categoryId,
     price,
     stock,
@@ -483,19 +521,58 @@ export function AddProductModal({
                 />
               </Field>
               <Field label="Category">
-                <Select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  required
-                  className={SELECT_CONTROL}
-                >
-                  <option value="">Select category</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nameEn}
-                    </option>
-                  ))}
-                </Select>
+                <CategoryHierarchyPicker
+                  dense
+                  mode="select"
+                  locale={locale}
+                  categories={categories}
+                  value={categoryId === "" ? "" : Number(categoryId)}
+                  onChange={(id) =>
+                    setCategoryId(id === "" ? "" : String(id))
+                  }
+                  disabled={submitting}
+                  aria-label={locale === "ar" ? "الفئة" : "Category"}
+                />
+              </Field>
+              <Field label="Brand">
+                <Input
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                  placeholder="e.g. Bosch, Genuine"
+                  className={INPUT_CONTROL}
+                  autoComplete="off"
+                />
+              </Field>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Field label="Dimensions">
+                  <Input
+                    value={dimensions}
+                    onChange={(e) => setDimensions(e.target.value)}
+                    placeholder='e.g. 12 × 8 × 4 cm'
+                    className={INPUT_CONTROL}
+                    autoComplete="off"
+                  />
+                </Field>
+                <Field label="Weight">
+                  <Input
+                    type="number"
+                    min={0}
+                    step="any"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    placeholder="kg — optional"
+                    className={INPUT_CONTROL}
+                  />
+                </Field>
+              </div>
+              <Field label="Manufactured in">
+                <Input
+                  value={manufacturedIn}
+                  onChange={(e) => setManufacturedIn(e.target.value)}
+                  placeholder="Country or region — optional"
+                  className={INPUT_CONTROL}
+                  autoComplete="off"
+                />
               </Field>
               <div className="grid gap-2 sm:grid-cols-2">
                 <Field label="Price (SAR)">

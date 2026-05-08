@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProductListRow } from "@/lib/api/types";
 import {
@@ -17,8 +18,9 @@ import { isApiError } from "@/lib/api/errors";
 import { vehicleFitmentLabel } from "@/admin/utils/vehicleFitmentLabel";
 import { useAdminProducts } from "@/hooks/useAdminProducts";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { Button, ConfirmModal, FieldError } from "@/shared/ui";
+import { Button, ConfirmModal, FieldError, type CategoryHierarchyPickerLocale } from "@/shared/ui";
 import { formatSar } from "@/shared/utils/formatSar";
+import { getDocumentLocaleFromPathname } from "@/shared/utils/documentLocaleFromPathname";
 import { AddProductModal } from "@/admin/components/inventory/AddProductModal";
 import { AdminSimpleListModal } from "@/admin/components/inventory/AdminSimpleListModal";
 import { InventoryToolbar } from "@/admin/components/inventory/InventoryToolbar";
@@ -31,6 +33,11 @@ import {
 const PAGE_SIZE = 10;
 
 export function InventoryView() {
+  const pathname = usePathname();
+  const categoryLocale = useMemo((): CategoryHierarchyPickerLocale => {
+    return getDocumentLocaleFromPathname(pathname).lang === "ar" ? "ar" : "en";
+  }, [pathname]);
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 350);
@@ -241,6 +248,7 @@ export function InventoryView() {
         onCategoryChange={handleCategoryChange}
         categories={categories}
         categoriesLoading={categoriesLoading}
+        locale={categoryLocale}
       />
 
       <ProductCatalogTable
@@ -265,6 +273,7 @@ export function InventoryView() {
         mode={productModalMode}
         productId={editingProductId}
         categories={categories}
+        locale={categoryLocale}
         onClose={() => {
           setProductModalOpen(false);
           setEditingProductId(null);

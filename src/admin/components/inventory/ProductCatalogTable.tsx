@@ -1,13 +1,18 @@
 "use client";
 
 import { Package, Pencil, Trash2 } from "lucide-react";
-import clsx from "clsx";
 import { useCallback, useState } from "react";
 import type { ProductListRow } from "@/lib/api/types";
 import { categoryBreadcrumbEn } from "@/admin/utils/categoryBreadcrumb";
 import type { AdminCategoryRow } from "@/lib/api/services/adminCategories";
 import { formatSar } from "@/shared/utils/formatSar";
-import { Button, Input, PageJumpControl } from "@/shared/ui";
+import {
+  Button,
+  Input,
+  LabeledSwitch,
+  PageJumpControl,
+  PillBadgeButton,
+} from "@/shared/ui";
 
 export type PriceChangeRequest = {
   productId: string;
@@ -116,10 +121,20 @@ export function ProductCatalogTable({
     [stockDraft, onRequestStockChange],
   );
 
+  const beginPriceEdit = useCallback((row: ProductListRow) => {
+    setPriceEditId(row.id);
+    setPriceDraft(parsePriceString(row.price).toFixed(2));
+  }, []);
+
+  const beginStockEdit = useCallback((row: ProductListRow) => {
+    setStockEditId(row.id);
+    setStockDraft(String(row.stockQuantity));
+  }, []);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-secondary/20 bg-white shadow-sm ring-1 ring-primary/5">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1060px] border-collapse text-left text-sm">
+        <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-secondary/15 bg-background/80">
               <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
@@ -135,9 +150,12 @@ export function ProductCatalogTable({
                 Category
               </th>
               <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
+                Brand
+              </th>
+              <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-secondary">
                 OEM
               </th>
-              <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
+              <th className="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wide text-secondary">
                 Fitment
               </th>
               <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
@@ -157,13 +175,13 @@ export function ProductCatalogTable({
           <tbody className="divide-y divide-secondary/10">
             {loading ? (
               <tr>
-                <td colSpan={10} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={11} className="px-4 py-12 text-center text-secondary">
                   Loading…
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={11} className="px-4 py-12 text-center text-secondary">
                   No products match this search.
                 </td>
               </tr>
@@ -221,31 +239,34 @@ export function ProductCatalogTable({
                     <td className="max-w-[160px] px-3 py-2 align-top text-foreground">
                       <span className="line-clamp-2 text-xs leading-snug">{path}</span>
                     </td>
-                    <td className="px-3 py-2 align-top">
-                      <button
-                        type="button"
-                        onClick={() => onOpenOem(p)}
-                        disabled={oemCount === 0}
-                        className={clsx(
-                          "inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
-                          oemCount === 0
-                            ? "cursor-not-allowed border-secondary/15 bg-secondary/5 text-secondary"
-                            : "border-secondary/20 bg-secondary/10 text-foreground hover:border-accent/40 hover:bg-accent/10",
-                        )}
-                      >
-                        {oemCount === 0
-                          ? "No OEM"
-                          : `View ${oemCount} OEM`}
-                      </button>
+                    <td className="max-w-[120px] px-3 py-2 align-top">
+                      <span className="line-clamp-2 text-xs font-medium text-foreground">
+                        {p.brandName}
+                      </span>
                     </td>
-                    <td className="px-3 py-2 align-top">
-                      <button
-                        type="button"
-                        onClick={() => onOpenFitments(p)}
-                        className="inline-flex rounded-full border border-secondary/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-primary transition-colors hover:border-accent/40 hover:bg-accent/15"
-                      >
-                        View {fitCount} {fitCount === 1 ? "car" : "cars"}
-                      </button>
+                    <td className="px-3 py-2 align-middle text-center">
+                      <div className="flex justify-center">
+                        <PillBadgeButton
+                          type="button"
+                          onClick={() => onOpenOem(p)}
+                          disabled={oemCount === 0}
+                        >
+                          {oemCount === 0
+                            ? "No OEM"
+                            : `View ${oemCount} OEM`}
+                        </PillBadgeButton>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 align-middle text-center">
+                      <div className="flex justify-center">
+                        <PillBadgeButton
+                          type="button"
+                          onClick={() => onOpenFitments(p)}
+                        >
+                          View {fitCount}{" "}
+                          {fitCount === 1 ? "car" : "cars"}
+                        </PillBadgeButton>
+                      </div>
                     </td>
                     <td className="px-3 py-2 align-top">
                       <div className="flex items-center gap-1">
@@ -254,7 +275,7 @@ export function ProductCatalogTable({
                             type="number"
                             step="0.01"
                             min={0}
-                            className="h-9 w-24 px-2 py-1 text-xs"
+                            className="h-8 !w-[5rem] max-w-[5rem] shrink-0 px-2 py-1 text-xs tabular-nums"
                             value={priceDraft}
                             onChange={(e) => setPriceDraft(e.target.value)}
                             onBlur={() => commitPrice(p)}
@@ -270,16 +291,20 @@ export function ProductCatalogTable({
                             autoFocus
                           />
                         ) : (
-                          <span className="text-foreground">{formatSar(p.price)}</span>
+                          <button
+                            type="button"
+                            className="rounded px-1 py-0.5 text-left text-foreground tabular-nums hover:bg-primary/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+                            aria-label={`Edit price for ${p.sku}`}
+                            onClick={() => beginPriceEdit(p)}
+                          >
+                            {formatSar(p.price)}
+                          </button>
                         )}
                         <button
                           type="button"
                           className="rounded p-1 text-secondary opacity-0 transition-opacity group-hover/row:opacity-100 hover:text-primary"
                           aria-label={`Edit price for ${p.sku}`}
-                          onClick={() => {
-                            setPriceEditId(p.id);
-                            setPriceDraft(parsePriceString(p.price).toFixed(2));
-                          }}
+                          onClick={() => beginPriceEdit(p)}
                         >
                           <Pencil className="size-3.5" strokeWidth={2} />
                         </button>
@@ -292,7 +317,7 @@ export function ProductCatalogTable({
                             type="number"
                             min={0}
                             step={1}
-                            className="h-9 w-16 px-2 py-1 text-xs"
+                            className="h-8 !w-[5rem] max-w-[5rem] shrink-0 px-2 py-1 text-xs tabular-nums"
                             value={stockDraft}
                             onChange={(e) => setStockDraft(e.target.value)}
                             onBlur={() => commitStock(p)}
@@ -308,55 +333,32 @@ export function ProductCatalogTable({
                             autoFocus
                           />
                         ) : (
-                          <span className="inline-flex min-w-[2rem] rounded-md border border-secondary/20 bg-background px-2 py-0.5 text-foreground">
+                          <button
+                            type="button"
+                            className="inline-flex min-w-[1.75rem] shrink-0 items-center justify-center rounded-md border border-secondary/20 bg-background px-1.5 py-0.5 text-foreground tabular-nums hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+                            aria-label={`Edit stock for ${p.sku}`}
+                            onClick={() => beginStockEdit(p)}
+                          >
                             {p.stockQuantity}
-                          </span>
+                          </button>
                         )}
                         <button
                           type="button"
                           className="rounded p-1 text-secondary opacity-0 transition-opacity group-hover/row:opacity-100 hover:text-primary"
                           aria-label={`Edit stock for ${p.sku}`}
-                          onClick={() => {
-                            setStockEditId(p.id);
-                            setStockDraft(String(p.stockQuantity));
-                          }}
+                          onClick={() => beginStockEdit(p)}
                         >
                           <Pencil className="size-3.5" strokeWidth={2} />
                         </button>
                       </div>
                     </td>
-                    <td className="px-3 py-2 align-top">
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={p.isActive}
-                        onClick={() => onToggleActive(p, !p.isActive)}
-                        className={clsx(
-                          "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-secondary/25 transition-colors",
-                          p.isActive ? "bg-emerald-500/90" : "bg-secondary/20",
-                        )}
-                      >
-                        <span
-                          className={clsx(
-                            "inline-block size-5 translate-x-1 transform rounded-full bg-white shadow transition-transform",
-                            p.isActive ? "translate-x-5" : "translate-x-0.5",
-                          )}
-                        />
-                      </button>
-                      <span
-                        className={clsx(
-                          "ms-2 inline-flex items-center gap-1 text-xs",
-                          p.isActive ? "text-emerald-700" : "text-secondary",
-                        )}
-                      >
-                        <span
-                          className={clsx(
-                            "size-1.5 rounded-full",
-                            p.isActive ? "bg-emerald-500" : "bg-secondary",
-                          )}
-                        />
-                        {p.isActive ? "Active" : "Hidden"}
-                      </span>
+                    <td className="px-3 py-2 align-middle">
+                      <LabeledSwitch
+                        checked={p.isActive}
+                        onCheckedChange={(active) =>
+                          onToggleActive(p, active)
+                        }
+                      />
                     </td>
                     <td className="px-3 py-2 align-top text-right">
                       <div className="flex justify-end gap-1">

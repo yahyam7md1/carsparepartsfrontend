@@ -3,7 +3,11 @@
 import { Search } from "lucide-react";
 import clsx from "clsx";
 import type { AdminCategoryRow } from "@/lib/api/services/adminCategories";
-import { SearchField, Select } from "@/shared/ui";
+import {
+  CategoryHierarchyPicker,
+  type CategoryHierarchyPickerLocale,
+  SearchField,
+} from "@/shared/ui";
 
 export type InventoryToolbarProps = Readonly<{
   search: string;
@@ -12,6 +16,8 @@ export type InventoryToolbarProps = Readonly<{
   onCategoryChange: (id: number | "") => void;
   categories: AdminCategoryRow[];
   categoriesLoading: boolean;
+  /** Category labels + search UI (`en` / `ar`). */
+  locale?: CategoryHierarchyPickerLocale;
   className?: string;
 }>;
 
@@ -22,6 +28,7 @@ export function InventoryToolbar({
   onCategoryChange,
   categories,
   categoriesLoading,
+  locale = "en",
   className,
 }: InventoryToolbarProps) {
   return (
@@ -39,23 +46,18 @@ export function InventoryToolbar({
         className="min-w-0 flex-1 sm:max-w-xl"
         autoComplete="off"
       />
-      <div className="w-full sm:w-56">
-        <Select
+      <div className="w-full min-w-0 sm:w-64">
+        <CategoryHierarchyPicker
+          mode="filter"
+          locale={locale}
+          categories={categories}
+          value={categoryId}
+          onChange={onCategoryChange}
           disabled={categoriesLoading}
-          value={categoryId === "" ? "" : String(categoryId)}
-          onChange={(e) => {
-            const v = e.target.value;
-            onCategoryChange(v === "" ? "" : Number(v));
-          }}
-          aria-label="Filter by category"
-        >
-          <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nameEn}
-            </option>
-          ))}
-        </Select>
+          aria-label={
+            locale === "ar" ? "تصفية حسب الفئة" : "Filter by category"
+          }
+        />
       </div>
     </div>
   );
