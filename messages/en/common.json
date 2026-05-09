@@ -1,11 +1,6 @@
 {
-  "starterShellHint": "Shop shell: edit",
-  "starterRouteHint": "Route entrypoint:",
-  "starterFileHomeView": "src/shop/views/HomeView.tsx",
-  "starterFileShopPage": "src/app/[locale]/(shop)/shop/page.tsx",
-  "starterLinkDeploy": "Deploy now",
-  "starterLinkReadDocs": "Read our docs",
-  "starterFooterLearn": "Learn",
-  "starterFooterExamples": "Examples",
-  "starterFooterNextSite": "Go to nextjs.org →"
+  "shopHomeMvpTitle": "Genuine German Parts",
+  "shopHomeMvpSubtitle": "Marketing home content is coming in Phase F3. Browse products from the header to explore the catalog.",
+  "legalPagePlaceholder": "Full legal text will be published before launch.",
+  "shopPhasePlaceholder": "Full functionality is planned in a later delivery phase."
 }

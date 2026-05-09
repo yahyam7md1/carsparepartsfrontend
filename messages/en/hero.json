@@ -1,5 +1,6 @@
 {
-  "heroTitle": "Precision German parts",
+  "heroTitleLine1": "Precision",
+  "heroTitleLine2": "German parts",
   "heroSubtitle": "Find exactly what your car needs — engineered for BMW, Mini Cooper, Audi & Volkswagen.",
   "heroModeVehicle": "By vehicle",
   "heroModePart": "By part / OEM",
@@ -12,8 +13,13 @@
   "heroSeriesPhNeedMake": "Select make first",
   "heroChassisPh": "Type or choose chassis…",
   "heroChassisPhNeedMake": "Select make first",
+  "heroChassisPhNeedSeries": "Select series first",
   "heroFindParts": "Find Parts",
   "heroPartType": "Part type",
   "heroOemLabel": "OEM number",
-  "heroOemPlaceholder": "OEM or part number"
+  "heroOemPlaceholder": "OEM or part number",
+  "heroCategoryAll": "All categories",
+  "heroCategoryPlaceholder": "Select category…",
+  "heroCategorySearch": "Search categories…",
+  "heroImageAlt": "German automotive spare parts and precision hardware."
 }

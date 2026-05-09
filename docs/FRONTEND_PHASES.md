@@ -214,7 +214,7 @@ Build reusable pieces before or during the phase that first needs them. Names ar
 
 - `ShopHeader`: logo “Genuine German Parts”, links Home / Products / Contact, search **UI** (can navigate to `/products?q=…` later), cart icon + **badge** from cart context (start with Context + `0`), `LanguageSwitch`.
 - `ShopFooter`: 4 columns SHOP / HELP / LEGAL + brand blurb.
-- `WhatsAppFab`: fixed position; `href` to `https://wa.me/...` from `NEXT_PUBLIC_WHATSAPP_SUPPORT` optional env or static.
+- `WhatsAppFab`: fixed position at the bottom right of screen use react icons whatsapp icon; `href` to `https://wa.me/...` from `NEXT_PUBLIC_WHATSAPP_SUPPORT` optional env or static.
 
 ### Components
 

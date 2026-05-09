@@ -13,5 +13,11 @@
   "language": "اللغة",
   "whatsapp": "واتساب",
   "adminConsole": "لوحة الإدارة",
-  "contactExpertFloat": "تواصل مع خبير"
+  "contactExpertFloat": "تواصل مع خبير",
+  "localeEnShort": "EN",
+  "localeArShort": "عربي",
+  "localeEnMobileTrigger": "ENG",
+  "localeArMobileTrigger": "ع",
+  "toggleSearch": "إظهار/إخفاء البحث",
+  "languageMenu": "اختر اللغة"
 }

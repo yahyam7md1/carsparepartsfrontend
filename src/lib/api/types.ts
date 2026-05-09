@@ -80,6 +80,18 @@ export type VehicleDto = {
   generation: string | null;
 };
 
+/** GET /api/vehicle-facets/vehicles — slim row for storefront facets. */
+export type VehicleFacetRow = {
+  id: number;
+  brand: string;
+  series: string;
+  specifics: string;
+  chassisCode: string;
+  yearRange: string;
+  nameEn: string;
+  nameAr: string;
+};
+
 /** Admin vehicle list row — includes aggregate fitment count from backend. */
 export type AdminVehicleListRow = VehicleDto & {
   fitmentCount?: number;

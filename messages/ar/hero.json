@@ -1,5 +1,6 @@
 {
-  "heroTitle": "قطع ألمانية بدقة",
+  "heroTitleLine1": "قطع ألمانية",
+  "heroTitleLine2": "بدقة متناهية",
   "heroSubtitle": "اعثر على ما تحتاجه لسيارتك — مصمّمة لـ BMW وميني كوبر وأودي وفولكس فاجن.",
   "heroModeVehicle": "حسب السيارة",
   "heroModePart": "حسب القطعة / OEM",
@@ -12,8 +13,13 @@
   "heroSeriesPhNeedMake": "اختر العلامة أولاً",
   "heroChassisPh": "اكتب أو اختر الهيكل…",
   "heroChassisPhNeedMake": "اختر العلامة أولاً",
+  "heroChassisPhNeedSeries": "اختر السلسلة أولاً",
   "heroFindParts": "ابحث عن القطع",
   "heroPartType": "نوع القطعة",
   "heroOemLabel": "رقم OEM",
-  "heroOemPlaceholder": "OEM أو رقم القطعة"
+  "heroOemPlaceholder": "OEM أو رقم القطعة",
+  "heroCategoryAll": "جميع الفئات",
+  "heroCategoryPlaceholder": "اختر الفئة…",
+  "heroCategorySearch": "بحث في الفئات…",
+  "heroImageAlt": "لقطة مقربة لقطع غيار السيارات الألمانية وقطع المحرك."
 }

@@ -1,5 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { getDirection } from "@/shared/utils/rtl";
+import { CartProvider } from "@/shop/context/cart-context";
+import { ShopShell } from "@/shop/components/shell/ShopShell";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -18,7 +20,9 @@ export default async function ShopGroupLayout({ children, params }: Props) {
       dir={dir}
       lang={locale}
     >
-      {children}
+      <CartProvider>
+        <ShopShell>{children}</ShopShell>
+      </CartProvider>
     </div>
   );
 }

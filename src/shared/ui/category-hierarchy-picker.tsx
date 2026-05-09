@@ -220,7 +220,7 @@ export function CategoryHierarchyPicker({
         onClick={() => !disabled && setOpen((o) => !o)}
         dir={locale === "ar" ? "rtl" : "ltr"}
         className={clsx(
-          "flex w-full min-h-11 items-center justify-between gap-2 rounded-lg border border-secondary/25 bg-background px-3 py-2.5 text-start text-sm text-foreground shadow-sm transition-colors",
+          "flex w-full min-h-11 items-center justify-between gap-3 rounded-lg border border-secondary/25 bg-background ps-3 pe-5 py-2.5 text-start text-sm text-foreground shadow-sm transition-colors",
           dense && "min-h-9 py-2 text-xs",
           "hover:bg-background focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
           disabled && "cursor-not-allowed opacity-60",

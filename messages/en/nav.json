@@ -13,5 +13,11 @@
   "language": "Language",
   "whatsapp": "WhatsApp",
   "adminConsole": "Admin console",
-  "contactExpertFloat": "Contact an Expert"
+  "contactExpertFloat": "Contact an Expert",
+  "localeEnShort": "EN",
+  "localeArShort": "عربي",
+  "localeEnMobileTrigger": "ENG",
+  "localeArMobileTrigger": "ع",
+  "toggleSearch": "Toggle search field",
+  "languageMenu": "Choose language"
 }
