@@ -1,0 +1,22 @@
+{
+  "title": "Products",
+  "searchPlaceholder": "Search by part name, SKU, or OEM factory number…",
+  "productsCount": "products",
+  "filtersTitle": "Filters",
+  "filtersOpen": "Open filters",
+  "filtersClose": "Close",
+  "filtersReset": "Reset filters",
+  "filtersShowResults": "Show {count} results",
+  "filtersCarManufacturer": "Car Manufacturer",
+  "filtersPartCategory": "Part Category",
+  "sortBy": "Sort by",
+  "sortRelevance": "Relevance",
+  "sortPriceAsc": "Price: Low to High",
+  "sortPriceDesc": "Price: High to Low",
+  "sortNewest": "Newest arrivals",
+  "loadMore": "Load more",
+  "loadingMore": "Loading…",
+  "noResults": "No products match your filters",
+  "noResultsHint": "Try removing some filters or searching for something else.",
+  "loadError": "Could not load products. Please try again."
+}

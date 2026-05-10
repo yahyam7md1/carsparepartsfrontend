@@ -6,6 +6,7 @@ const namespaces = [
   "home",
   "listing",
   "product",
+  "products",
   "cart",
   "contact",
   "footer",

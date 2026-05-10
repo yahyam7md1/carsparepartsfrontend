@@ -41,13 +41,13 @@ export function QuantitySelector({
   };
 
   const leftButtonClass = clsx(
-    "flex items-center justify-center rounded-l-lg border border-neutral-200/90 bg-white text-primary transition-colors hover:border-primary/25 hover:bg-primary/5 disabled:pointer-events-none disabled:opacity-40",
+    "flex items-center justify-center rounded-s-lg border border-neutral-200/90 bg-white text-primary transition-colors hover:border-primary/25 hover:bg-primary/5 disabled:pointer-events-none disabled:opacity-40",
     size === "md" && "h-10 px-4",
     size === "sm" && "h-8 px-3",
   );
 
   const rightButtonClass = clsx(
-    "flex items-center justify-center rounded-r-lg border border-neutral-200/90 bg-white text-primary transition-colors hover:border-primary/25 hover:bg-primary/5 disabled:pointer-events-none disabled:opacity-40",
+    "flex items-center justify-center rounded-e-lg border border-neutral-200/90 bg-white text-primary transition-colors hover:border-primary/25 hover:bg-primary/5 disabled:pointer-events-none disabled:opacity-40",
     size === "md" && "h-10 px-4",
     size === "sm" && "h-8 px-3",
   );

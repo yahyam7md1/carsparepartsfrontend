@@ -99,7 +99,7 @@ export function ProductCard({ product, locale }: Props) {
           variant="primary"
           size="md"
           onClick={handleAddToCart}
-          className="w-full"
+          className="w-full transition-colors hover:bg-accent hover:opacity-100"
           disabled={product.stockQuantity < 1}
         >
           <Plus className="size-4" strokeWidth={2.5} />

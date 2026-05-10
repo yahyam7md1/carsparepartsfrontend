@@ -3,6 +3,7 @@ import hero from "../../messages/en/hero.json";
 import home from "../../messages/en/home.json";
 import listing from "../../messages/en/listing.json";
 import product from "../../messages/en/product.json";
+import products from "../../messages/en/products.json";
 import cart from "../../messages/en/cart.json";
 import contact from "../../messages/en/contact.json";
 import footer from "../../messages/en/footer.json";
@@ -15,6 +16,7 @@ export const enMessages = {
   home,
   listing,
   product,
+  products,
   cart,
   contact,
   footer,

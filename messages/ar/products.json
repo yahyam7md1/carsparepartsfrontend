@@ -1,0 +1,22 @@
+{
+  "title": "المنتجات",
+  "searchPlaceholder": "ابحث باسم القطعة أو رقم SKU أو رقم OEM المصنعي…",
+  "productsCount": "منتج",
+  "filtersTitle": "الفلاتر",
+  "filtersOpen": "فتح الفلاتر",
+  "filtersClose": "إغلاق",
+  "filtersReset": "إعادة تعيين",
+  "filtersShowResults": "عرض {count} نتيجة",
+  "filtersCarManufacturer": "صانع السيارة",
+  "filtersPartCategory": "فئة القطعة",
+  "sortBy": "الترتيب حسب",
+  "sortRelevance": "الأنسب",
+  "sortPriceAsc": "السعر: من الأقل إلى الأعلى",
+  "sortPriceDesc": "السعر: من الأعلى إلى الأقل",
+  "sortNewest": "الأحدث",
+  "loadMore": "عرض المزيد",
+  "loadingMore": "جارٍ التحميل…",
+  "noResults": "لا توجد منتجات مطابقة للفلاتر",
+  "noResultsHint": "جرّب إزالة بعض الفلاتر أو البحث بكلمة أخرى.",
+  "loadError": "تعذر تحميل المنتجات. حاول مرة أخرى."
+}
