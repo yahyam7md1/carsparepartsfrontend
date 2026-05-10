@@ -1,0 +1,21 @@
+# Copy to netlify.toml and replace YOUR-DO-APP-URL with your DigitalOcean App Platform hostname.
+# See CarSparePartsBackend/docs/DEPLOYMENT-DIGITALOCEAN-NETLIFY.md for full context.
+
+[build]
+  command = "npm run build"
+
+# Set in Netlify UI (Site settings → Environment variables):
+# - NODE_VERSION = 20 or 22
+# - API_PROXY_TARGET = https://YOUR-DO-APP-URL.ondigitalocean.app  (for Next SSR / getApiBaseUrl server-side)
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-DO-APP-URL.ondigitalocean.app/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://YOUR-DO-APP-URL.ondigitalocean.app/uploads/:splat"
+  status = 200
+  force = true
