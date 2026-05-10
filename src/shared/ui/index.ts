@@ -2,6 +2,10 @@ export { Button, type ButtonProps, type ButtonVariant } from "./button";
 export { Label, type LabelProps } from "./label";
 export { Input, type InputProps } from "./input";
 export { Select, type SelectProps } from "./select";
+export {
+  QuantitySelector,
+  type QuantitySelectorProps,
+} from "./quantity-selector";
 export { FieldError, type FieldErrorProps } from "./field-error";
 export { SearchField, type SearchFieldProps } from "./search-field";
 export { Modal, type ModalProps } from "./modal";
