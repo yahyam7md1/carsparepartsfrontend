@@ -1,5 +1,23 @@
 {
   "quantity": "الكمية",
   "decreaseQuantity": "تقليل الكمية",
-  "increaseQuantity": "زيادة الكمية"
+  "increaseQuantity": "زيادة الكمية",
+  "galleryPrevImage": "الصورة السابقة",
+  "galleryNextImage": "الصورة التالية",
+  "inStock": "متوفر",
+  "priceLabel": "السعر",
+  "priceVatNote": "الأسعار تشمل ضريبة القيمة المضافة عند التطبيق.",
+  "askSpecialistWhatsapp": "هل لديك سؤال فني؟ اسأل المختص",
+  "descriptionTitle": "الوصف",
+  "technicalSpecificationsTitle": "المواصفات الفنية",
+  "specManufacturer": "بلد الصنع",
+  "specDimensions": "الأبعاد",
+  "specWeight": "الوزن",
+  "specCategory": "الفئة",
+  "specCondition": "الحالة",
+  "specConditionNew": "جديد",
+  "specConditionUsed": "مستعمل",
+  "specOemNumbers": "أرقام OEM",
+  "notAvailable": "غير متوفر",
+  "whatsappAskPrefill": "مرحبًا، أحتاج مساعدة بخصوص {product} (SKU: {sku})، الكمية: {qty}."
 }

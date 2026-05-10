@@ -50,6 +50,7 @@ export type ProductListRow = {
   descEn: string | null;
   descAr: string | null;
   price: string;
+  compareAtPrice: string | null;
   stockQuantity: number;
   movementClass: "slow" | "medium" | "fast";
   isFeatured: boolean;

@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useCategoriesTree } from "@/hooks/useCategoriesTree";
 import { useProduct } from "@/hooks/useProductDetail";
 import { useCart } from "@/shop/context/cart-context";
 import { getMediaUrl } from "@/shop/lib/media-url";
+import { buildWhatsappMeUrl, getWhatsappChatUrlFromEnv } from "@/shop/lib/whatsapp-url";
 import type { AppLocale } from "@/i18n/routing";
-import { Button } from "@/shared/ui/button";
-import { QuantityStepper } from "@/shop/components/cart/quantity-stepper";
-import { formatSar } from "@/shared/utils/formatSar";
+import { fetchShopSupportPublic } from "@/lib/api/services/shopSupport";
+import { categoryBreadcrumbFromTree } from "@/shared/utils/categoryBreadcrumb";
+import { ProductDescriptionCard } from "@/shop/components/pdp/ProductDescriptionCard";
+import { ProductGallery } from "@/shop/components/pdp/ProductGallery";
+import { MobileStickyPurchaseBar } from "@/shop/components/pdp/MobileStickyPurchaseBar";
+import { ProductPurchaseCard } from "@/shop/components/pdp/ProductPurchaseCard";
+import { ProductSpecsCard } from "@/shop/components/pdp/ProductSpecsCard";
 
 type Props = Readonly<{
   productId: string;
@@ -20,9 +25,37 @@ type Props = Readonly<{
 
 export function ProductDetailView({ productId, locale }: Props) {
   const tHome = useTranslations("home");
+  const tProduct = useTranslations("product");
   const { data: product, loading, error } = useProduct(productId);
+  const { data: categoriesTree } = useCategoriesTree();
   const { addLine } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [supportDigits, setSupportDigits] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+    setQuantity(1);
+  }, [productId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const support = await fetchShopSupportPublic();
+        if (!cancelled) {
+          setSupportDigits(support.whatsappPhoneDigits);
+        }
+      } catch {
+        if (!cancelled) {
+          setSupportDigits(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -60,8 +93,27 @@ export function ProductDetailView({ productId, locale }: Props) {
 
   const title = locale === "ar" ? product.nameAr : product.nameEn;
   const description = locale === "ar" ? product.descAr : product.descEn;
-  const main = product.images.find((i) => i.isMain) ?? product.images[0];
-  const src = main ? getMediaUrl(main.urlThumb) : "";
+  const categoryTitle = locale === "ar" ? product.category.nameAr : product.category.nameEn;
+  const categoryBreadcrumb =
+    categoriesTree && categoriesTree.length > 0
+      ? categoryBreadcrumbFromTree(categoriesTree, product.categoryId, locale)
+      : null;
+  const categoryValue = categoryBreadcrumb ?? categoryTitle;
+  const price = Number.parseFloat(product.price);
+  const compareAtPrice =
+    product.compareAtPrice == null ? null : Number.parseFloat(product.compareAtPrice);
+  const maxQuantity = product.stockQuantity > 0 ? product.stockQuantity : 1;
+
+  const selectedImage = product.images[selectedImageIndex] ?? null;
+  const selectedThumbSrc = selectedImage
+    ? getMediaUrl(selectedImage.urlThumb || selectedImage.urlLarge)
+    : null;
+
+  const askSpecialistText = tProduct("whatsappAskPrefill", {
+    product: title,
+    sku: product.sku,
+    qty: quantity,
+  });
 
   const handleAddToCart = () => {
     addLine({
@@ -73,14 +125,33 @@ export function ProductDetailView({ productId, locale }: Props) {
       descEn: product.descEn ?? undefined,
       descAr: product.descAr ?? undefined,
       quantity,
-      unitPrice: Number.parseFloat(product.price),
-      imageThumbUrl: src || undefined,
+      unitPrice: price,
+      imageThumbUrl: selectedThumbSrc ?? undefined,
       stockQuantity: product.stockQuantity,
     });
   };
 
+  const handleAskSpecialist = () => {
+    const fromSupport = supportDigits?.trim()
+      ? buildWhatsappMeUrl(supportDigits, { prefillText: askSpecialistText })
+      : null;
+    const fromEnv = getWhatsappChatUrlFromEnv({ prefillText: askSpecialistText });
+    const url = fromSupport ?? fromEnv;
+    if (url) {
+      globalThis.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    globalThis.location.assign("/contact");
+  };
+
+  const oemValues = product.oems.map((o) => o.value).filter((v) => v.trim().length > 0);
+  const conditionLabel =
+    product.condition === "used"
+      ? tProduct("specConditionUsed")
+      : tProduct("specConditionNew");
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 md:py-12">
+    <div className="mx-auto max-w-6xl px-4 py-8 pb-24 md:py-12 md:pb-12">
       <Link
         className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
         href="/products"
@@ -89,57 +160,73 @@ export function ProductDetailView({ productId, locale }: Props) {
         {tHome("pdpBackToProducts")}
       </Link>
 
-      <div className="mt-6 grid gap-8 md:grid-cols-2 md:gap-10">
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-neutral-200/90 bg-secondary/10">
-          {src ? (
-            <Image alt={title} className="object-cover" fill priority sizes="(max-width: 768px) 100vw, 50vw" src={src} />
-          ) : (
-            <div className="flex size-full items-center justify-center text-sm text-secondary">
-              {tHome("productCardNoImage")}
-            </div>
-          )}
-          {product.stockQuantity < 1 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/55 backdrop-blur-sm">
-              <span className="rounded-lg bg-red-600/90 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white">
-                {tHome("outOfStock")}
-              </span>
-            </div>
-          )}
+      <div className="mt-6 grid gap-9 lg:grid-cols-[minmax(0,1fr)_minmax(360px,430px)] lg:items-start">
+        <div>
+          <ProductGallery
+            images={product.images}
+            title={title}
+            selectedIndex={selectedImageIndex}
+            onSelectedIndexChange={setSelectedImageIndex}
+            noImageLabel={tHome("productCardNoImage")}
+            prevImageLabel={tProduct("galleryPrevImage")}
+            nextImageLabel={tProduct("galleryNextImage")}
+          />
         </div>
 
-        <div className="flex flex-col">
-          <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
-            {product.brandName}
-          </p>
-          <h1 className="mt-1 text-2xl font-bold leading-tight text-primary md:text-3xl">{title}</h1>
-          <p className="mt-2 font-mono text-sm text-secondary">{product.sku}</p>
-          {description ? (
-            <p className="mt-4 text-sm leading-relaxed text-secondary whitespace-pre-line">{description}</p>
-          ) : null}
-          <p className="mt-6 text-2xl font-bold tabular-nums text-foreground">{formatSar(product.price)}</p>
+        <div className="space-y-6">
+          <ProductPurchaseCard
+            brandName={product.brandName}
+            title={title}
+            sku={product.sku}
+            inStock={product.stockQuantity > 0}
+            stockLabel={tProduct("inStock")}
+            outOfStockLabel={tHome("outOfStock")}
+            priceLabel={tProduct("priceLabel")}
+            vatNote={tProduct("priceVatNote")}
+            price={price}
+            compareAtPrice={compareAtPrice}
+            quantity={quantity}
+            maxQuantity={maxQuantity}
+            addToCartLabel={tHome("addToCart")}
+            askSpecialistLabel={tProduct("askSpecialistWhatsapp")}
+            onQuantityChange={setQuantity}
+            onAddToCart={handleAddToCart}
+            onAskSpecialist={handleAskSpecialist}
+          />
 
-          <div className="mt-8 space-y-4 border-t border-neutral-200/80 pt-6">
-            {product.stockQuantity >= 1 ? (
-              <QuantityStepper
-                value={quantity}
-                onChange={setQuantity}
-                max={product.stockQuantity}
-              />
-            ) : null}
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full gap-2"
-              disabled={product.stockQuantity < 1}
-              onClick={handleAddToCart}
-              type="button"
-            >
-              <Plus className="size-4" strokeWidth={2.5} />
-              {tHome("addToCart")}
-            </Button>
-          </div>
+          <ProductDescriptionCard
+            title={tProduct("descriptionTitle")}
+            description={description}
+            emptyLabel={tProduct("notAvailable")}
+          />
+
+          <ProductSpecsCard
+            title={tProduct("technicalSpecificationsTitle")}
+            manufacturerLabel={tProduct("specManufacturer")}
+            dimensionsLabel={tProduct("specDimensions")}
+            weightLabel={tProduct("specWeight")}
+            categoryLabel={tProduct("specCategory")}
+            conditionLabel={tProduct("specCondition")}
+            oemNumbersLabel={tProduct("specOemNumbers")}
+            manufacturer={product.manufacturedIn}
+            dimensions={product.dimensions}
+            weight={product.weight}
+            category={categoryValue}
+            condition={conditionLabel}
+            oemValues={oemValues}
+          />
         </div>
       </div>
+
+      <MobileStickyPurchaseBar
+        title={title}
+        thumbSrc={selectedThumbSrc}
+        price={price}
+        compareAtPrice={compareAtPrice}
+        addToCartLabel={tHome("addToCartShort")}
+        disabled={product.stockQuantity < 1}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
 }

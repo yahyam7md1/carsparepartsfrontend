@@ -281,6 +281,8 @@ Build reusable pieces before or during the phase that first needs them. Names ar
 
 ## Phase F5 — Product detail (PDP) & image URLs
 
+**Implementation detail:** see **[phase-f5.md](./phase-f5.md)**.
+
 **Goal:** Full product page + fitments section.
 
 ### Deliverables
@@ -501,4 +503,4 @@ src/
 
 ---
 
-*Last updated: added F8 / F11 / F12 implementation docs (`phase-f8.md`, `phase-f11.md`, `phase-f12.md`). Adjust phase numbers if you merge F7 into F3 or split F11.*
+*Last updated: added F5 / F8 / F11 / F12 implementation docs (`phase-f5.md`, `phase-f8.md`, `phase-f11.md`, `phase-f12.md`). Adjust phase numbers if you merge F7 into F3 or split F11.*

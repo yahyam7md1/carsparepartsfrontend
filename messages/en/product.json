@@ -1,5 +1,23 @@
 {
   "quantity": "Quantity",
   "decreaseQuantity": "Decrease quantity",
-  "increaseQuantity": "Increase quantity"
+  "increaseQuantity": "Increase quantity",
+  "galleryPrevImage": "Previous image",
+  "galleryNextImage": "Next image",
+  "inStock": "In stock",
+  "priceLabel": "Price",
+  "priceVatNote": "Prices include VAT where applicable.",
+  "askSpecialistWhatsapp": "Have a technical question? Ask our specialist",
+  "descriptionTitle": "Description",
+  "technicalSpecificationsTitle": "Technical specifications",
+  "specManufacturer": "Manufacturer",
+  "specDimensions": "Dimensions",
+  "specWeight": "Weight",
+  "specCategory": "Category",
+  "specCondition": "Condition",
+  "specConditionNew": "New",
+  "specConditionUsed": "Used",
+  "specOemNumbers": "OEM Numbers",
+  "notAvailable": "Not available",
+  "whatsappAskPrefill": "Hi, I need help with {product} (SKU: {sku}), quantity: {qty}."
 }

@@ -74,7 +74,7 @@ function HeaderCartLink({
     >
       <ShoppingCart aria-hidden className={iconClassName} />
       {itemCount > 0 ? (
-        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-0.5 text-[0.6rem] font-semibold leading-none text-white">
+        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600/90 px-0.5 text-[0.6rem] font-semibold leading-none text-white">
           {itemCount > 99 ? "99+" : itemCount}
         </span>
       ) : null}

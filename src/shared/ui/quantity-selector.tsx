@@ -7,7 +7,7 @@ export type QuantitySelectorProps = Readonly<{
   onChange: (value: number) => void;
   min?: number;
   max?: number;
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md";
   className?: string;
 }>;
 
@@ -44,18 +44,21 @@ export function QuantitySelector({
     "flex items-center justify-center rounded-s-lg border border-neutral-200/90 bg-white text-primary transition-colors hover:border-primary/25 hover:bg-primary/5 disabled:pointer-events-none disabled:opacity-40",
     size === "md" && "h-10 px-4",
     size === "sm" && "h-8 px-3",
+    size === "xs" && "h-8 px-2.5",
   );
 
   const rightButtonClass = clsx(
     "flex items-center justify-center rounded-e-lg border border-neutral-200/90 bg-white text-primary transition-colors hover:border-primary/25 hover:bg-primary/5 disabled:pointer-events-none disabled:opacity-40",
     size === "md" && "h-10 px-4",
     size === "sm" && "h-8 px-3",
+    size === "xs" && "h-8 px-2.5",
   );
 
   const inputClass = clsx(
     "flex-1 border-y border-neutral-200/90 bg-white text-center font-semibold text-primary transition-colors focus:border-primary/50 focus:outline-none focus:ring-0",
     size === "md" && "h-10 text-sm",
     size === "sm" && "h-8 text-xs",
+    size === "xs" && "h-8 w-9 text-xs",
   );
 
   const iconSize = size === "md" ? "size-4" : "size-3.5";
