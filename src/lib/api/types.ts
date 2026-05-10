@@ -76,7 +76,7 @@ export type VehicleDto = {
   brand: string;
   series: string;
   specifics: string;
-  chassisCode: string;
+  chassisCode: string | null;
   yearRange: string;
   generation: string | null;
 };
@@ -87,7 +87,8 @@ export type VehicleFacetRow = {
   brand: string;
   series: string;
   specifics: string;
-  chassisCode: string;
+  chassisCode: string | null;
+  generation: string | null;
   yearRange: string;
   nameEn: string;
   nameAr: string;

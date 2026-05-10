@@ -71,6 +71,7 @@ const SEARCH_INPUT_CLASS =
 /** Default part brand when the admin form no longer collects it (vehicle fitment covers car make). */
 const DEFAULT_PART_BRAND = "Aftermarket";
 type MovementClass = "slow" | "medium" | "fast";
+type ProductCondition = "new" | "used";
 
 type Props = Readonly<{
   open: boolean;
@@ -118,6 +119,10 @@ function isMovementClass(value: string): value is MovementClass {
   return value === "slow" || value === "medium" || value === "fast";
 }
 
+function isProductCondition(value: string): value is ProductCondition {
+  return value === "new" || value === "used";
+}
+
 function applyProductToForm(
   p: ProductDetail,
   setters: {
@@ -131,6 +136,7 @@ function applyProductToForm(
     setDimensions: (v: string) => void;
     setWeight: (v: string) => void;
     setManufacturedIn: (v: string) => void;
+    setCondition: (v: ProductCondition) => void;
     setNameEn: (v: string) => void;
     setNameAr: (v: string) => void;
     setDescEn: (v: string) => void;
@@ -149,6 +155,7 @@ function applyProductToForm(
   setters.setDimensions(p.dimensions ?? "");
   setters.setWeight(p.weight != null && Number.isFinite(p.weight) ? String(p.weight) : "");
   setters.setManufacturedIn(p.manufacturedIn ?? "");
+  setters.setCondition(p.condition === "used" ? "used" : "new");
   setters.setNameEn(p.nameEn ?? "");
   setters.setNameAr(p.nameAr ?? "");
   setters.setDescEn(p.descEn ?? "");
@@ -211,6 +218,7 @@ export function AddProductModal({
   const [dimensions, setDimensions] = useState("");
   const [weight, setWeight] = useState("");
   const [manufacturedIn, setManufacturedIn] = useState("");
+  const [condition, setCondition] = useState<ProductCondition>("new");
   const [nameEn, setNameEn] = useState("");
   const [nameAr, setNameAr] = useState("");
   const [descEn, setDescEn] = useState("");
@@ -236,6 +244,10 @@ export function AddProductModal({
   const [error, setError] = useState<string | null>(null);
 
   const vehicles = vehicleList.data?.vehicles ?? [];
+  const availableVehicles = useMemo(
+    () => vehicles.filter((v) => !vehicleIds.includes(v.id)),
+    [vehicles, vehicleIds],
+  );
 
   const imagePreviewUrls = useMemo(
     () => files.map((file) => URL.createObjectURL(file)),
@@ -273,6 +285,7 @@ export function AddProductModal({
     setDimensions("");
     setWeight("");
     setManufacturedIn("");
+    setCondition("new");
     setNameEn("");
     setNameAr("");
     setDescEn("");
@@ -314,6 +327,7 @@ export function AddProductModal({
           setDimensions,
           setWeight,
           setManufacturedIn,
+          setCondition,
           setNameEn,
           setNameAr,
           setDescEn,
@@ -456,6 +470,7 @@ export function AddProductModal({
           dimensions: dimensionsTrimmed || null,
           weight: weightNum,
           manufacturedIn: manufacturedTrimmed || null,
+          condition,
         });
         id = created.id;
       } else {
@@ -475,6 +490,7 @@ export function AddProductModal({
           dimensions: dimensionsTrimmed || null,
           weight: weightNum,
           manufacturedIn: manufacturedTrimmed || null,
+          condition,
         });
         id = productId;
       }
@@ -503,6 +519,7 @@ export function AddProductModal({
     dimensions,
     weight,
     manufacturedIn,
+    condition,
     oemLines,
     movementClass,
     categoryId,
@@ -663,6 +680,19 @@ export function AddProductModal({
                   <option value="fast">Fast-moving (alert below 7)</option>
                 </select>
               </Field>
+              <Field label="Condition">
+                <select
+                  value={condition}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    if (isProductCondition(next)) setCondition(next);
+                  }}
+                  className={clsx(INPUT_CONTROL, SELECT_CONTROL)}
+                >
+                  <option value="new">New</option>
+                  <option value="used">Used</option>
+                </select>
+              </Field>
               <p className="text-[0.65rem] leading-snug text-secondary">
                 Restock thresholds are fixed by movement class: fast-moving items alert earlier,
                 medium in-between, and slow-moving items only when out of stock.
@@ -757,6 +787,7 @@ export function AddProductModal({
                 setFitmentComboOpen(true);
               }}
               onFocus={() => setFitmentComboOpen(true)}
+              onClick={() => setFitmentComboOpen(true)}
               onKeyDown={(e) => {
                 if (e.key === "Escape") setFitmentComboOpen(false);
               }}
@@ -780,7 +811,7 @@ export function AddProductModal({
               >
                 {renderVehicleDropdownRows(
                   vehicleList.loading,
-                  vehicles,
+                  availableVehicles,
                   (v) => {
                     addVehicleId(v.id, vehicleFitmentLabel(v));
                     setVehicleSearch("");

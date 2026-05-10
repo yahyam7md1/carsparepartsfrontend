@@ -21,7 +21,7 @@ const HERO_LABEL =
 
 function formatVehicleOption(v: VehicleFacetRow, locale: string): string {
   const name = locale === "ar" ? v.nameAr : v.nameEn;
-  const extra = [v.specifics, v.yearRange].filter(Boolean).join(" · ");
+  const extra = [v.generation, v.specifics, v.yearRange].filter(Boolean).join(" · ");
   return extra ? `${name} — ${extra}` : name;
 }
 
@@ -32,7 +32,7 @@ export function VehicleHeroPanel() {
   const baseId = useId();
   const makeFieldId = `${baseId}-make`;
   const seriesFieldId = `${baseId}-series`;
-  const chassisFieldId = `${baseId}-chassis`;
+  const generationFieldId = `${baseId}-generation`;
 
   const [brand, setBrand] = useState("");
   const [series, setSeries] = useState("");
@@ -135,28 +135,28 @@ export function VehicleHeroPanel() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className={HERO_LABEL} htmlFor={chassisFieldId}>
+        <Label className={HERO_LABEL} htmlFor={generationFieldId}>
           <Link2
             aria-hidden
             className="size-3.5 shrink-0 opacity-90"
             strokeWidth={2}
           />
-          {t("heroChassis")}
+          {t("heroGeneration")}
         </Label>
         <Select
-          aria-label={t("heroChassis")}
+          aria-label={t("heroGeneration")}
           className={HERO_SELECT}
           disabled={!brand || !series || vehiclesLoading}
-          id={chassisFieldId}
+          id={generationFieldId}
           value={vehicleId}
           onChange={(e) => setVehicleId(e.target.value)}
         >
           <option value="">
             {!brand
-              ? t("heroChassisPhNeedMake")
+              ? t("heroGenerationPhNeedMake")
               : !series
-                ? t("heroChassisPhNeedSeries")
-                : t("heroChassisPh")}
+                ? t("heroGenerationPhNeedSeries")
+                : t("heroGenerationPh")}
           </option>
           {vehicleOptions.map((v) => (
             <option key={v.id} value={String(v.id)}>

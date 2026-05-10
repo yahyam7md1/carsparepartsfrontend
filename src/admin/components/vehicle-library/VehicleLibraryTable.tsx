@@ -49,9 +49,6 @@ export function VehicleLibraryTable({
                   <p className="text-sm text-foreground">{v.series}</p>
                   <p className="text-xs text-secondary">{v.specifics}</p>
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-primary">
-                      {v.chassisCode}
-                    </span>
                     <span className="text-sm text-foreground">{v.yearRange}</span>
                   </div>
                   <p className="text-xs text-secondary">
@@ -70,7 +67,7 @@ export function VehicleLibraryTable({
                     size="sm"
                     className="min-h-9 min-w-9 p-0 text-secondary hover:text-primary"
                     onClick={() => onEdit(v)}
-                    aria-label={`Edit ${v.brand} ${v.chassisCode}`}
+                    aria-label={`Edit ${v.brand} ${v.series}`}
                   >
                     <Pencil className="size-4" strokeWidth={2} />
                   </Button>
@@ -80,7 +77,7 @@ export function VehicleLibraryTable({
                     size="sm"
                     className="min-h-9 min-w-9 p-0 text-secondary hover:text-red-700"
                     onClick={() => onDelete(v)}
-                    aria-label={`Delete ${v.brand} ${v.chassisCode}`}
+                    aria-label={`Delete ${v.brand} ${v.series}`}
                   >
                     <Trash2 className="size-4" strokeWidth={2} />
                   </Button>
@@ -111,9 +108,6 @@ export function VehicleLibraryTable({
                 Specifics
               </th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
-                Chassis
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
                 Generation
               </th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
@@ -130,13 +124,13 @@ export function VehicleLibraryTable({
           <tbody className="divide-y divide-secondary/10">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={7} className="px-4 py-12 text-center text-secondary">
                   Loading…
                 </td>
               </tr>
             ) : vehicles.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={7} className="px-4 py-12 text-center text-secondary">
                   No vehicles match this search.
                 </td>
               </tr>
@@ -148,11 +142,6 @@ export function VehicleLibraryTable({
                   </td>
                   <td className="px-4 py-3 align-top text-foreground">{v.series}</td>
                   <td className="px-4 py-3 align-top text-secondary">{v.specifics}</td>
-                  <td className="px-4 py-3 align-top">
-                    <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-primary">
-                      {v.chassisCode}
-                    </span>
-                  </td>
                   <td className="px-4 py-3 align-top text-secondary">
                     {v.generation?.trim() ? (
                       <span className="text-foreground">{v.generation}</span>
@@ -179,7 +168,7 @@ export function VehicleLibraryTable({
                         size="sm"
                         className="min-h-9 min-w-9 p-0 text-secondary hover:text-primary"
                         onClick={() => onEdit(v)}
-                        aria-label={`Edit ${v.brand} ${v.chassisCode}`}
+                        aria-label={`Edit ${v.brand} ${v.series}`}
                       >
                         <Pencil className="size-4" strokeWidth={2} />
                       </Button>
@@ -189,7 +178,7 @@ export function VehicleLibraryTable({
                         size="sm"
                         className="min-h-9 min-w-9 p-0 text-secondary hover:text-red-700"
                         onClick={() => onDelete(v)}
-                        aria-label={`Delete ${v.brand} ${v.chassisCode}`}
+                        aria-label={`Delete ${v.brand} ${v.series}`}
                       >
                         <Trash2 className="size-4" strokeWidth={2} />
                       </Button>

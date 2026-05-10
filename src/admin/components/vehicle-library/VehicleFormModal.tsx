@@ -1,7 +1,7 @@
 "use client";
 
 import { Copy, Plus, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { AdminVehicleListRow } from "@/lib/api/types";
 import { VEHICLE_LIBRARY_BRAND_OPTIONS } from "@/admin/constants/vehicleBrands";
 import {
@@ -51,10 +51,12 @@ export function VehicleFormModal({
   onClose,
   onSaved,
 }: VehicleFormModalProps) {
+  const inventoryComboId = useId();
+  const inventoryComboWrapRef = useRef<HTMLDivElement>(null);
+
   const [brand, setBrand] = useState("");
   const [series, setSeries] = useState("");
   const [specifics, setSpecifics] = useState("");
-  const [chassisCode, setChassisCode] = useState("");
   const [yearRange, setYearRange] = useState("");
   const [generation, setGeneration] = useState("");
 
@@ -64,6 +66,7 @@ export function VehicleFormModal({
 
   const [inventorySearch, setInventorySearch] = useState("");
   const debouncedInventorySearch = useDebouncedValue(inventorySearch, 300);
+  const [inventoryComboOpen, setInventoryComboOpen] = useState(false);
   const [inventoryLoading, setInventoryLoading] = useState(false);
   const [inventoryHits, setInventoryHits] = useState<LinkedRow[]>([]);
 
@@ -86,12 +89,12 @@ export function VehicleFormModal({
     setBrand("");
     setSeries("");
     setSpecifics("");
-    setChassisCode("");
     setYearRange("");
     setGeneration("");
     setMergeSearch("");
     setMergeSource(null);
     setInventorySearch("");
+    setInventoryComboOpen(false);
     setInventoryHits([]);
     setLinkedProducts([]);
     setError(null);
@@ -104,12 +107,12 @@ export function VehicleFormModal({
       setBrand(vehicle.brand);
       setSeries(vehicle.series);
       setSpecifics(vehicle.specifics);
-      setChassisCode(vehicle.chassisCode);
       setYearRange(vehicle.yearRange);
       setGeneration(vehicle.generation ?? "");
       setMergeSource(null);
       setMergeSearch("");
       setInventorySearch("");
+      setInventoryComboOpen(false);
       setInventoryHits([]);
     } else if (mode === "add") {
       resetForm();
@@ -161,15 +164,15 @@ export function VehicleFormModal({
   useEffect(() => {
     if (!open) return;
     const q = debouncedInventorySearch.trim();
-    if (q.length < 1) {
-      setInventoryHits([]);
-      return;
-    }
     let cancelled = false;
     setInventoryLoading(true);
     void (async () => {
       try {
-        const res = await fetchAdminProducts({ q, limit: 12, page: 1 });
+        const res = await fetchAdminProducts({
+          ...(q.length > 0 ? { q } : {}),
+          limit: 15,
+          page: 1,
+        });
         if (cancelled) return;
         setInventoryHits(
           res.products.map((p) => ({
@@ -190,11 +193,34 @@ export function VehicleFormModal({
     };
   }, [open, debouncedInventorySearch]);
 
+  useEffect(() => {
+    if (!inventoryComboOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      const el = inventoryComboWrapRef.current;
+      if (el && !el.contains(e.target as Node)) {
+        setInventoryComboOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [inventoryComboOpen]);
+
   const addLinked = useCallback((row: LinkedRow) => {
     setLinkedProducts((prev) =>
       prev.some((p) => p.id === row.id) ? prev : [...prev, row],
     );
   }, []);
+
+  const handleSelectInventoryHit = useCallback(
+    (row: LinkedRow) => {
+      addLinked(row);
+      // Collapse suggestions immediately so selection feedback is obvious.
+      setInventorySearch("");
+      setInventoryHits([]);
+      setInventoryComboOpen(false);
+    },
+    [addLinked],
+  );
 
   const removeLinked = useCallback(
     async (productId: string) => {
@@ -253,11 +279,10 @@ export function VehicleFormModal({
     const b = brand.trim();
     const s = series.trim();
     const sp = specifics.trim();
-    const c = chassisCode.trim();
     const y = yearRange.trim();
     const genRaw = generation.trim();
-    if (!b || !s || !sp || !c || !y) {
-      setError("Select a make and fill series, specifics, chassis, and year range.");
+    if (!b || !s || !sp || !y) {
+      setError("Select a make and fill series, specifics, and year range.");
       return;
     }
     setSubmitting(true);
@@ -268,7 +293,6 @@ export function VehicleFormModal({
           brand: b,
           series: s,
           specifics: sp,
-          chassisCode: c,
           yearRange: y,
           generation: genRaw ? genRaw : null,
         });
@@ -288,7 +312,6 @@ export function VehicleFormModal({
           brand: b,
           series: s,
           specifics: sp,
-          chassisCode: c,
           yearRange: y,
           generation: genRaw ? genRaw : null,
         });
@@ -316,7 +339,6 @@ export function VehicleFormModal({
     brand,
     series,
     specifics,
-    chassisCode,
     yearRange,
     generation,
     mode,
@@ -332,6 +354,12 @@ export function VehicleFormModal({
     mergeList.data?.vehicles.filter(
       (v) => !vehicle || v.id !== vehicle.id,
     ) ?? [];
+
+  const filteredInventoryHits = useMemo(() => {
+    if (inventoryHits.length === 0) return [];
+    const linkedIds = new Set(linkedProducts.map((p) => p.id));
+    return inventoryHits.filter((hit) => !linkedIds.has(hit.id));
+  }, [inventoryHits, linkedProducts]);
 
   const canMergeNow =
     mode === "edit" &&
@@ -410,20 +438,11 @@ export function VehicleFormModal({
               className={COMPACT_FIELD}
             />
           </Field>
-          <Field label="Chassis code">
-            <Input
-              value={chassisCode}
-              onChange={(e) => setChassisCode(e.target.value)}
-              placeholder="F30 · W205 · 5G"
-              autoComplete="off"
-              className={COMPACT_FIELD}
-            />
-          </Field>
           <Field label="Generation" optional>
             <Input
               value={generation}
               onChange={(e) => setGeneration(e.target.value)}
-              placeholder="e.g. pre-LCI, Mk7.5"
+              placeholder="F30 · W205 · 5G"
               autoComplete="off"
               className={COMPACT_FIELD}
             />
@@ -445,7 +464,7 @@ export function VehicleFormModal({
               Products that fit this vehicle
             </h3>
             <p className="text-[0.65rem] leading-snug text-secondary">
-              Search inventory and add SKUs. Shown in the parts catalog for this chassis.
+              Search inventory and add SKUs. Shown in the parts catalog for this vehicle.
             </p>
           </div>
 
@@ -454,14 +473,14 @@ export function VehicleFormModal({
               Copy fitment from another vehicle
             </p>
             <p className="mt-0.5 text-[0.65rem] leading-snug text-secondary">
-              Import every product linked to a chassis you already maintain. Existing SKUs in
+              Import every product linked to a vehicle you already maintain. Existing SKUs in
               this list are skipped.
             </p>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start">
               <SearchField
                 value={mergeSearch}
                 onChange={(e) => setMergeSearch(e.target.value)}
-                placeholder="Type to filter by brand, series, or chassis…"
+                placeholder="Type to filter by brand, series, specifics, or generation…"
                 leftAdornment={<Search className="size-3.5" strokeWidth={2} />}
                 className="min-h-9 min-w-0 flex-1 rounded-lg shadow-none focus-within:shadow-none"
                 inputClassName="min-h-8 py-1 text-xs leading-snug focus-visible:!ring-0"
@@ -482,7 +501,7 @@ export function VehicleFormModal({
               <p className="mt-1.5 text-[0.65rem] text-foreground">
                 Source:{" "}
                 <strong>
-                  {mergeSource.brand} {mergeSource.chassisCode}
+                  {mergeSource.brand} {mergeSource.series}
                 </strong>{" "}
                 ({mergeSource.fitmentCount ?? 0} items)
               </p>
@@ -510,10 +529,10 @@ export function VehicleFormModal({
                       )}
                     >
                       <span className="font-medium text-foreground">
-                        {v.brand} · {v.chassisCode}
+                        {v.brand} · {v.series}
                       </span>
                       <span className="text-secondary">
-                        {v.series} · {v.specifics} · {v.fitmentCount ?? 0} items
+                        {v.specifics} · {v.yearRange} · {v.fitmentCount ?? 0} items
                       </span>
                     </button>
                   </li>
@@ -526,39 +545,54 @@ export function VehicleFormModal({
             <p className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
               Add from inventory
             </p>
-            <SearchField
-              value={inventorySearch}
-              onChange={(e) => setInventorySearch(e.target.value)}
-              placeholder="SKU, name, or brand…"
-              leftAdornment={<Search className="size-3.5" strokeWidth={2} />}
-              className="mt-1.5 min-h-9 rounded-lg shadow-none focus-within:shadow-none"
-              inputClassName="min-h-8 py-1 text-xs leading-snug focus-visible:!ring-0"
-            />
-            <ul className="mt-1.5 max-h-40 overflow-y-auto rounded-lg border border-secondary/10 bg-white">
-              {inventoryLoading ? (
-                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">Searching…</li>
-              ) : debouncedInventorySearch.trim().length < 1 ? (
-                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">
-                  Type at least one character to search.
-                </li>
-              ) : inventoryHits.length === 0 ? (
-                <li className="px-2.5 py-2 text-[0.65rem] text-secondary">No products found.</li>
-              ) : (
-                inventoryHits.map((p) => (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() => addLinked(p)}
-                      className="flex w-full flex-col items-start gap-0.5 px-2.5 py-1.5 text-left text-[0.65rem] transition-colors hover:bg-primary/5"
-                    >
-                      <span className="font-mono text-secondary">{p.sku}</span>
-                      <span className="font-medium text-foreground">{p.nameEn}</span>
-                      <span className="text-secondary">{p.brandName}</span>
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
+            <div ref={inventoryComboWrapRef} className="relative mt-1.5">
+              <Label htmlFor={inventoryComboId} className="sr-only">
+                Search products
+              </Label>
+              <SearchField
+                id={inventoryComboId}
+                value={inventorySearch}
+                onChange={(e) => {
+                  setInventorySearch(e.target.value);
+                  setInventoryComboOpen(true);
+                }}
+                onFocus={() => setInventoryComboOpen(true)}
+                onClick={() => setInventoryComboOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setInventoryComboOpen(false);
+                }}
+                placeholder="SKU, name, or brand…"
+                leftAdornment={<Search className="size-3.5" strokeWidth={2} />}
+                className="min-h-9 rounded-lg shadow-none focus-within:shadow-none"
+                inputClassName="min-h-8 py-1 text-xs leading-snug focus-visible:!ring-0"
+              />
+              {inventoryComboOpen ? (
+                <ul className="absolute left-0 right-0 z-50 mt-1 max-h-44 overflow-y-auto rounded-lg border border-secondary/20 bg-white py-0.5 shadow-lg ring-1 ring-primary/5">
+                  {inventoryLoading ? (
+                    <li className="px-2.5 py-2 text-[0.65rem] text-secondary">Loading…</li>
+                  ) : filteredInventoryHits.length === 0 ? (
+                    <li className="px-2.5 py-2 text-[0.65rem] text-secondary">
+                      No products available.
+                    </li>
+                  ) : (
+                    filteredInventoryHits.map((p) => (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleSelectInventoryHit(p)}
+                          className="flex w-full flex-col items-start gap-0.5 px-2.5 py-1.5 text-left text-[0.65rem] transition-colors hover:bg-primary/5"
+                        >
+                          <span className="font-mono text-secondary">{p.sku}</span>
+                          <span className="font-medium text-foreground">{p.nameEn}</span>
+                          <span className="text-secondary">{p.brandName}</span>
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              ) : null}
+            </div>
           </div>
 
           <div>

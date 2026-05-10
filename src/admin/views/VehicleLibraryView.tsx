@@ -113,7 +113,7 @@ export function VehicleLibraryView() {
       <SearchField
         value={search}
         onChange={(e) => handleSearchChange(e.target.value)}
-        placeholder="Search brand, series, chassis, years…"
+        placeholder="Search brand, series, specifics, years…"
         leftAdornment={<Search className="size-4" strokeWidth={2} />}
         autoComplete="off"
       />
@@ -184,7 +184,7 @@ export function VehicleLibraryView() {
             <p>
               This will remove{" "}
               <strong className="text-foreground">
-                {deleteTarget.brand} {deleteTarget.chassisCode}
+                {deleteTarget.brand} {deleteTarget.series}
               </strong>{" "}
               from the library. Fitment links may be removed depending on backend rules.
             </p>
