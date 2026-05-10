@@ -132,6 +132,7 @@ function applyProductToForm(
     setMovementClass: (v: MovementClass) => void;
     setCategoryId: (v: string) => void;
     setPrice: (v: string) => void;
+    setCompareAtPrice: (v: string) => void;
     setStock: (v: string) => void;
     setDimensions: (v: string) => void;
     setWeight: (v: string) => void;
@@ -151,6 +152,11 @@ function applyProductToForm(
   setters.setMovementClass(p.movementClass ?? "medium");
   setters.setCategoryId(String(p.categoryId));
   setters.setPrice(p.price);
+  setters.setCompareAtPrice(
+    p.compareAtPrice != null && String(p.compareAtPrice).trim() !== ""
+      ? String(p.compareAtPrice)
+      : "",
+  );
   setters.setStock(String(p.stockQuantity));
   setters.setDimensions(p.dimensions ?? "");
   setters.setWeight(p.weight != null && Number.isFinite(p.weight) ? String(p.weight) : "");
@@ -214,6 +220,7 @@ export function AddProductModal({
   const [movementClass, setMovementClass] = useState<MovementClass>("medium");
   const [categoryId, setCategoryId] = useState("");
   const [price, setPrice] = useState("");
+  const [compareAtPrice, setCompareAtPrice] = useState("");
   const [stock, setStock] = useState("0");
   const [dimensions, setDimensions] = useState("");
   const [weight, setWeight] = useState("");
@@ -281,6 +288,7 @@ export function AddProductModal({
     setMovementClass("medium");
     setCategoryId("");
     setPrice("");
+    setCompareAtPrice("");
     setStock("0");
     setDimensions("");
     setWeight("");
@@ -323,6 +331,7 @@ export function AddProductModal({
           setMovementClass,
           setCategoryId,
           setPrice,
+          setCompareAtPrice,
           setStock,
           setDimensions,
           setWeight,
@@ -422,6 +431,20 @@ export function AddProductModal({
       setError("Price must be a valid non-negative number.");
       return;
     }
+    const compareTrim = compareAtPrice.trim();
+    let compareAtNum: number | null = null;
+    if (compareTrim !== "") {
+      const c = Number.parseFloat(compareTrim);
+      if (!Number.isFinite(c) || c < 0) {
+        setError("List / compare-at price must be a valid non-negative number when provided.");
+        return;
+      }
+      if (c <= priceN) {
+        setError("List price (before discount) must be greater than the sale price to show a discount on the storefront.");
+        return;
+      }
+      compareAtNum = c;
+    }
     if (!Number.isFinite(stockN) || stockN < 0) {
       setError("Stock must be a valid non-negative integer.");
       return;
@@ -463,6 +486,7 @@ export function AddProductModal({
           descEn: descEn.trim() || null,
           descAr: descAr.trim() || null,
           price: priceN,
+          compareAtPrice: compareAtNum,
           stockQuantity: stockN,
           movementClass,
           isActive: true,
@@ -485,6 +509,7 @@ export function AddProductModal({
           descEn: descEn.trim() || null,
           descAr: descAr.trim() || null,
           price: priceN,
+          compareAtPrice: compareAtNum,
           stockQuantity: stockN,
           movementClass,
           dimensions: dimensionsTrimmed || null,
@@ -524,6 +549,7 @@ export function AddProductModal({
     movementClass,
     categoryId,
     price,
+    compareAtPrice,
     stock,
     nameEn,
     nameAr,
@@ -644,8 +670,8 @@ export function AddProductModal({
                   autoComplete="off"
                 />
               </Field>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Field label="Price (SAR)">
+              <div className="grid items-start gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                <Field label="Price (SAR)" labelBlockClassName="min-h-[2.75rem]">
                   <Input
                     type="number"
                     min={0}
@@ -655,7 +681,18 @@ export function AddProductModal({
                     className={INPUT_CONTROL}
                   />
                 </Field>
-                <Field label="Stock">
+                <Field label="List price (SAR)" labelBlockClassName="min-h-[2.75rem]">
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={compareAtPrice}
+                    onChange={(e) => setCompareAtPrice(e.target.value)}
+                    placeholder="Optional"
+                    className={INPUT_CONTROL}
+                  />
+                </Field>
+                <Field label="Stock" labelBlockClassName="min-h-[2.75rem]">
                   <Input
                     type="number"
                     min={0}
@@ -666,6 +703,10 @@ export function AddProductModal({
                   />
                 </Field>
               </div>
+              <p className="-mt-0.5 text-[0.65rem] leading-snug text-secondary">
+                List price is optional; if set it must be higher than the sale price and appears crossed
+                out on the storefront (before-discount display).
+              </p>
               <Field label="Movement class">
                 <select
                   value={movementClass}
@@ -1002,28 +1043,38 @@ export function AddProductModal({
 
 function Field({
   label,
+  hint,
   className,
+  labelBlockClassName,
   contentClassName,
   labelClassName,
   children,
 }: Readonly<{
   label: string;
+  hint?: ReactNode;
   className?: string;
+  /** Wrapper around label — use e.g. min-h for grid rows where labels wrap unevenly */
+  labelBlockClassName?: string;
   contentClassName?: string;
   labelClassName?: string;
   children: ReactNode;
 }>) {
   return (
     <div className={className}>
-      <Label
-        className={clsx(
-          "text-[0.6rem] font-semibold uppercase tracking-wide text-primary",
-          labelClassName,
-        )}
-      >
-        {label}
-      </Label>
+      <div className={labelBlockClassName}>
+        <Label
+          className={clsx(
+            "text-[0.6rem] font-semibold uppercase tracking-wide text-primary",
+            labelClassName,
+          )}
+        >
+          {label}
+        </Label>
+      </div>
       <div className={clsx("mt-1", contentClassName)}>{children}</div>
+      {hint != null && hint !== "" ? (
+        <p className="mt-1 text-[0.65rem] leading-snug text-secondary">{hint}</p>
+      ) : null}
     </div>
   );
 }
