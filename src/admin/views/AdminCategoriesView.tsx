@@ -76,7 +76,7 @@ export function AdminCategoriesView() {
 
   async function handleDelete(c: AdminCategory) {
     const ok = window.confirm(
-      `Delete “${c.nameEn}”? This cannot be undone if the API allows it.`,
+      `Delete “${c.nameEn}”?\n You can only delete a category if it has no sub-categories and no products use it. Move or reassign products in Inventory first, and remove child categories before deleting a parent.`,
     );
     if (!ok) return;
     try {
@@ -84,7 +84,11 @@ export function AdminCategoriesView() {
       await refresh();
     } catch (e) {
       if (isApiError(e)) {
-        window.alert(e.message);
+        window.alert(
+          e.status === 409
+            ? `${e.message}\n\nTip: Products still point at this category id in the database, or it still has sub-categories.`
+            : e.message,
+        );
       } else {
         window.alert("Delete failed.");
       }
@@ -130,6 +134,7 @@ export function AdminCategoriesView() {
       ) : (
         <CategoryGroupedTable
           rows={tableRows}
+          allCategories={categories}
           searchValue={search}
           onSearchChange={setSearch}
           onEdit={openEdit}

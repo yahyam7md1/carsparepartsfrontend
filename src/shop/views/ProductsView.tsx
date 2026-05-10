@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { ProductsFilterSidebar } from "@/shop/components/products/filters/ProductsFilterSidebar";
 import { ProductsSearchBar } from "@/shop/components/products/ProductsSearchBar";
 import { ProductsSortDropdown } from "@/shop/components/products/ProductsSortDropdown";
 import { MobileFilterPopover } from "@/shop/components/products/MobileFilterPopover";
 import { ProductsResults } from "@/shop/components/products/ProductsResults";
+import { useProductFilters } from "@/shop/hooks/useProductFilters";
 
 export function ProductsView() {
   const t = useTranslations("products");
+  const { isAnyFilterActive } = useProductFilters();
   const [total, setTotal] = useState<number | null>(null);
 
   return (
@@ -28,8 +31,8 @@ export function ProductsView() {
             <MobileFilterPopover />
           </div>
 
-          {/* Meta row: result count + sort dropdown */}
-          <div className="mt-4 flex items-center justify-between gap-3">
+          {/* Meta row: result count + all products + sort */}
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <p className="text-sm text-secondary">
               {total == null ? (
                 <span className="opacity-60">&nbsp;</span>
@@ -40,7 +43,19 @@ export function ProductsView() {
                 </>
               )}
             </p>
-            <ProductsSortDropdown />
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/products"
+                className={
+                  isAnyFilterActive
+                    ? "text-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                    : "text-sm font-medium text-secondary hover:text-primary"
+                }
+              >
+                {t("allProducts")}
+              </Link>
+              <ProductsSortDropdown />
+            </div>
           </div>
 
           {/* Results grid */}

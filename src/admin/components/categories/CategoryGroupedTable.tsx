@@ -1,12 +1,17 @@
 "use client";
 
 import type { CategoryTableRowModel } from "@/admin/lib/category-table-rows";
+import {
+  getProductBadgeForCategoryRow,
+} from "@/admin/lib/category-table-rows";
 import type { AdminCategory } from "@/lib/api/types";
 import { clsx } from "clsx";
 import { CornerDownRight, Pencil, Search, Tag, Trash2 } from "lucide-react";
 
 type CategoryGroupedTableProps = {
   rows: CategoryTableRowModel[];
+  /** Full flat list — used for rolled-up parent product totals */
+  allCategories: AdminCategory[];
   searchValue: string;
   onSearchChange: (v: string) => void;
   onEdit: (category: AdminCategory) => void;
@@ -38,21 +43,53 @@ function BilingualCell({
   );
 }
 
-function partCountDisplay(productCount: number | undefined): {
-  count: number;
-  label: string;
-} {
-  const n =
-    typeof productCount === "number" &&
-    Number.isFinite(productCount) &&
-    productCount >= 0
-      ? Math.floor(productCount)
-      : 0;
-  return { count: n, label: n === 1 ? "Part" : "Parts" };
+function ProductsBadge({ row, flat }: { row: CategoryTableRowModel; flat: AdminCategory[] }) {
+  const badge = getProductBadgeForCategoryRow(row, flat);
+  const n = badge.displayCount;
+  const label = n === 1 ? "Part" : "Parts";
+  if (badge.kind === "sub") {
+    return (
+      <span
+        className="inline-flex flex-col gap-0.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900"
+        title="Products assigned directly to this subcategory"
+      >
+        <span>
+          {n} {label}
+        </span>
+        <span className="text-[0.65rem] font-normal text-sky-800/90">Subcategory</span>
+      </span>
+    );
+  }
+  const direct = badge.directOnRow;
+  const total = badge.totalIncludingDescendants;
+  const hasSplit = total !== direct;
+  return (
+    <span
+      className="inline-flex flex-col gap-0.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900"
+      title={
+        hasSplit
+          ? `${total} products under this category tree (${direct} on parent only, ${total - direct} in subcategories)`
+          : `${total} products (parent category only)`
+      }
+    >
+      <span>
+        {total} {total === 1 ? "Part" : "Parts"}{" "}
+        <span className="font-normal text-[0.7rem] text-sky-800/85">total</span>
+      </span>
+      {hasSplit ? (
+        <span className="text-[0.65rem] font-normal text-sky-800/90">
+          {direct} on parent · {total - direct} in subs
+        </span>
+      ) : (
+        <span className="text-[0.65rem] font-normal text-sky-800/90">Parent</span>
+      )}
+    </span>
+  );
 }
 
 export function CategoryGroupedTable({
   rows,
+  allCategories,
   searchValue,
   onSearchChange,
   onEdit,
@@ -81,9 +118,6 @@ export function CategoryGroupedTable({
         ) : (
           rows.map((row, i) => {
             const productRow = row.child ?? row.parent;
-            const { count: partCount, label: partLabel } = partCountDisplay(
-              row.parent.productCount,
-            );
             const key = row.child ? `c-${row.child.id}` : `p-${row.parent.id}-${i}`;
             return (
               <div key={key} className="space-y-3 px-4 py-4">
@@ -124,9 +158,7 @@ export function CategoryGroupedTable({
                   </div>
                 )}
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900">
-                    {partCount} {partLabel}
-                  </span>
+                  <ProductsBadge row={row} flat={allCategories} />
                   <div className="flex gap-1">
                     <button
                       type="button"
@@ -181,15 +213,7 @@ export function CategoryGroupedTable({
               </tr>
             ) : (
               rows.map((row, i) => {
-                /** Row actions target the leaf row (sub-category or parent-only). */
                 const productRow = row.child ?? row.parent;
-                /**
-                 * Parts badge = products on the **parent** only (API `productCount` for main category).
-                 * Sub-category rows still edit/delete the sub; counts ignore child-only totals per product brief.
-                 */
-                const { count: partCount, label: partLabel } = partCountDisplay(
-                  row.parent.productCount,
-                );
                 const key = row.child
                   ? `c-${row.child.id}`
                   : `p-${row.parent.id}-${i}`;
@@ -232,9 +256,7 @@ export function CategoryGroupedTable({
                       )}
                     </td>
                     <td className="px-4 py-3 align-top">
-                      <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900">
-                        {partCount} {partLabel}
-                      </span>
+                      <ProductsBadge row={row} flat={allCategories} />
                     </td>
                     <td className="px-4 py-3 align-top">
                       <div className="flex gap-1">

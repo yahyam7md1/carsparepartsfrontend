@@ -66,13 +66,15 @@ export function CategoryFormModal({
       setParentAr("");
       setSubEn("");
       setSubAr("");
-    } else if (editing) {
-      setParentEn(editing.nameEn);
-      setParentAr(editing.nameAr);
-      setSubEn("");
-      setSubAr("");
+      return;
     }
-  }, [open, mode, editing, roots]);
+    if (mode !== "edit" || editing == null) return;
+    const latest = categories.find((c) => c.id === editing.id) ?? editing;
+    setParentEn(latest.nameEn);
+    setParentAr(latest.nameAr);
+    setSubEn("");
+    setSubAr("");
+  }, [open, mode, editing?.id, categories, roots]);
 
   if (!open) return null;
 

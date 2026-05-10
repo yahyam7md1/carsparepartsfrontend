@@ -44,6 +44,24 @@ function parseCsvNumeric(value: string | null): number[] {
     .filter((n) => Number.isFinite(n));
 }
 
+/** URL may use legacy `categoryId` (singular); PLP uses `categoryIds`. */
+function categoryIdsFromSearchParams(searchParams: {
+  get: (key: string) => string | null;
+}): number[] {
+  const fromPlural = parseCsvNumeric(searchParams.get("categoryIds"));
+  const rawSingle = searchParams.get("categoryId");
+  const single =
+    rawSingle !== null && rawSingle !== ""
+      ? Number.parseInt(rawSingle, 10)
+      : Number.NaN;
+  const set = new Set<number>();
+  for (const id of fromPlural) {
+    if (id > 0) set.add(id);
+  }
+  if (Number.isFinite(single) && single > 0) set.add(single);
+  return [...set];
+}
+
 function parseSort(value: string | null): ProductSort {
   if (value && SORT_VALUES.has(value as ProductSort)) {
     return value as ProductSort;
@@ -65,7 +83,7 @@ export function useProductFilters() {
     return {
       q: searchParams.get("q") ?? "",
       brand: parseCsv(searchParams.get("brand")),
-      categoryIds: parseCsvNumeric(searchParams.get("categoryIds")),
+      categoryIds: categoryIdsFromSearchParams(searchParams),
       vehicleId,
       oem: searchParams.get("oem") ?? "",
       sort: parseSort(searchParams.get("sort")),
