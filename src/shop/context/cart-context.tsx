@@ -16,6 +16,24 @@ function isCartLine(value: unknown): value is CartLine {
   if (typeof value !== "object" || value === null) return false;
   const o = value as Record<string, unknown>;
   if (
+    o.brandName !== undefined &&
+    (typeof o.brandName !== "string" || o.brandName.length === 0)
+  ) {
+    return false;
+  }
+  if (
+    o.descEn !== undefined &&
+    (typeof o.descEn !== "string" || o.descEn.length === 0)
+  ) {
+    return false;
+  }
+  if (
+    o.descAr !== undefined &&
+    (typeof o.descAr !== "string" || o.descAr.length === 0)
+  ) {
+    return false;
+  }
+  if (
     o.imageThumbUrl !== undefined &&
     (typeof o.imageThumbUrl !== "string" || o.imageThumbUrl.length === 0)
   ) {
@@ -100,7 +118,8 @@ export function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         return [...prev, { ...line, quantity: Math.max(1, line.quantity) }];
       }
       const next = [...prev];
-      const merged = next[idx]!;
+      const merged = next[idx];
+      if (!merged) return prev;
       next[idx] = {
         ...merged,
         quantity: merged.quantity + Math.max(1, line.quantity),
@@ -108,6 +127,9 @@ export function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         sku: line.sku,
         nameEn: line.nameEn,
         nameAr: line.nameAr,
+        brandName: line.brandName ?? merged.brandName,
+        descEn: line.descEn ?? merged.descEn,
+        descAr: line.descAr ?? merged.descAr,
         imageThumbUrl: line.imageThumbUrl ?? merged.imageThumbUrl,
         stockQuantity: line.stockQuantity ?? merged.stockQuantity,
       };
