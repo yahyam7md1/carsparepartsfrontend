@@ -211,6 +211,19 @@ export function InventoryView() {
     [refetch],
   );
 
+  const handleToggleFeatured = useCallback(
+    async (row: ProductListRow, featured: boolean) => {
+      try {
+        await updateAdminProduct(row.id, { isFeatured: featured });
+        await refetch();
+      } catch {
+        /* non-blocking */
+        void refetch();
+      }
+    },
+    [refetch],
+  );
+
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -264,6 +277,7 @@ export function InventoryView() {
         onOpenFitments={(row) => void openFitments(row)}
         onOpenOem={setOemModalRow}
         onToggleActive={handleToggleActive}
+        onToggleFeatured={handleToggleFeatured}
         onRequestPriceChange={setPricePending}
         onRequestStockChange={setStockPending}
       />

@@ -41,6 +41,7 @@ export type ProductCatalogTableProps = Readonly<{
   onOpenFitments: (row: ProductListRow) => void;
   onOpenOem: (row: ProductListRow) => void;
   onToggleActive: (row: ProductListRow, active: boolean) => void;
+  onToggleFeatured: (row: ProductListRow, featured: boolean) => void;
   onRequestPriceChange: (req: PriceChangeRequest) => void;
   onRequestStockChange: (req: StockChangeRequest) => void;
 }>;
@@ -67,6 +68,7 @@ export function ProductCatalogTable({
   onOpenFitments,
   onOpenOem,
   onToggleActive,
+  onToggleFeatured,
   onRequestPriceChange,
   onRequestStockChange,
 }: ProductCatalogTableProps) {
@@ -305,10 +307,18 @@ export function ProductCatalogTable({
                       </button>
                     </div>
                   </div>
-                  <LabeledSwitch
-                    checked={p.isActive}
-                    onCheckedChange={(active) => onToggleActive(p, active)}
-                  />
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <LabeledSwitch
+                      checked={p.isActive}
+                      onCheckedChange={(active) => onToggleActive(p, active)}
+                    />
+                    <LabeledSwitch
+                      checked={p.isFeatured}
+                      onCheckedChange={(featured) => onToggleFeatured(p, featured)}
+                      activeLabel="Featured"
+                      inactiveLabel="Not Featured"
+                    />
+                  </div>
                 </div>
               </li>
             );
@@ -349,6 +359,9 @@ export function ProductCatalogTable({
               <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
                 Status
               </th>
+              <th className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-secondary">
+                Featured
+              </th>
               <th className="px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-secondary">
                 Actions
               </th>
@@ -357,13 +370,13 @@ export function ProductCatalogTable({
           <tbody className="divide-y divide-secondary/10">
             {loading ? (
               <tr>
-                <td colSpan={11} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={12} className="px-4 py-12 text-center text-secondary">
                   Loading…
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-4 py-12 text-center text-secondary">
+                <td colSpan={12} className="px-4 py-12 text-center text-secondary">
                   No products match this search.
                 </td>
               </tr>
@@ -540,6 +553,16 @@ export function ProductCatalogTable({
                         onCheckedChange={(active) =>
                           onToggleActive(p, active)
                         }
+                      />
+                    </td>
+                    <td className="px-3 py-2 align-middle">
+                      <LabeledSwitch
+                        checked={p.isFeatured}
+                        onCheckedChange={(featured) =>
+                          onToggleFeatured(p, featured)
+                        }
+                        activeLabel="Featured"
+                        inactiveLabel="Not Featured"
                       />
                     </td>
                     <td className="px-3 py-2 align-top text-right">
