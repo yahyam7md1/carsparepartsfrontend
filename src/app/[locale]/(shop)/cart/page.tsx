@@ -1,13 +1,25 @@
 "use client";
 
+import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
 import { useCart } from "@/shop/context/cart-context";
+import { CartLineItem } from "@/shop/components/cart/CartLineItem";
+import { OrderSummary } from "@/shop/components/cart/OrderSummary";
 
 export default function CartPage() {
-  const locale = useLocale();
+  const locale = useLocale() as AppLocale;
   const tc = useTranslations("cart");
-  const { lines, itemCount, removeLine } = useCart();
+  const { lines, itemCount, setQuantity, removeLine } = useCart();
+
+  const subtotal = useMemo(
+    () =>
+      Math.round(
+        lines.reduce((sum, l) => sum + l.quantity * l.unitPrice, 0) * 100,
+      ) / 100,
+    [lines],
+  );
 
   if (lines.length === 0) {
     return (
@@ -27,45 +39,38 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-2xl font-semibold text-primary">
-        {tc("cartPageHeading")}
-      </h1>
-      <p className="mt-1 text-sm text-secondary">
-        {itemCount === 1
-          ? tc("cartCountParenOne")
-          : tc("cartCountParenMany", { n: itemCount })}
-      </p>
-      <ul
-        aria-label={tc("cartItemsListAria")}
-        className="mt-8 divide-y divide-primary/10 border-y border-primary/10"
-      >
-        {lines.map((line) => (
-          <li
-            className="flex flex-wrap items-center justify-between gap-4 py-4"
-            key={line.productId}
+    <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-semibold text-primary md:text-3xl">
+          {tc("cartPageHeading")}
+        </h1>
+        <p className="text-sm text-secondary">
+          {itemCount === 1
+            ? tc("cartCountParenOne")
+            : tc("cartCountParenMany", { n: itemCount })}
+        </p>
+      </div>
+
+      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_min(100%,380px)] lg:items-start">
+        <div className="min-w-0 rounded-2xl border border-secondary/20 bg-white px-4 shadow-sm ring-1 ring-primary/5 md:px-6">
+          <ul
+            aria-label={tc("cartItemsListAria")}
+            className="divide-y divide-primary/10"
           >
-            <div className="min-w-0">
-              <p className="truncate font-medium text-foreground">
-                {locale === "ar" ? line.nameAr : line.nameEn}
-              </p>
-              <p className="text-xs text-secondary">{line.sku}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="tabular-nums text-sm text-secondary">
-                × {line.quantity}
-              </span>
-              <button
-                className="text-sm text-primary underline-offset-4 hover:underline"
-                onClick={() => removeLine(line.productId)}
-                type="button"
-              >
-                {tc("cartRemoveLine")}
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+            {lines.map((line) => (
+              <CartLineItem
+                key={line.productId}
+                line={line}
+                locale={locale}
+                onQuantityChange={setQuantity}
+                onRemove={removeLine}
+              />
+            ))}
+          </ul>
+        </div>
+
+        <OrderSummary lines={lines} subtotal={subtotal} />
+      </div>
     </div>
   );
 }

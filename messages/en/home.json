@@ -13,6 +13,7 @@
   "whatsappHelpTitle": "Can't find the exact part you're looking for?",
   "whatsappHelpSubtitle": "Our German car specialists are ready to help. Send us your VIN or part details, and we'll source it for you instantly.",
   "whatsappHelpCta": "Chat with a Specialist",
+  "whatsappPrefillMessage": "Hello, i would like to ask about:",
   "brandTile_bmw": "BMW",
   "brandTile_mini": "Mini",
   "brandTile_vw": "Volkswagen",
@@ -39,5 +40,8 @@
   "statsStripValueYears": "15+",
   "statsStripLabelYears": "Years of experience",
   "pdpStubTitle": "Product details",
-  "pdpStubBody": "The full product page will be available in a later update. Use the header search or return to the shop home."
+  "pdpStubBody": "The full product page will be available in a later update. Use the header search or return to the shop home.",
+  "pdpErrorTitle": "Product not found",
+  "pdpErrorBody": "This product could not be loaded. You can browse all parts from the shop.",
+  "pdpBackToProducts": "Back to all products"
 }

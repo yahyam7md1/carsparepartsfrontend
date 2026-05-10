@@ -38,6 +38,8 @@ export function ProductCard({ product, locale }: Props) {
       nameAr: product.nameAr,
       quantity,
       unitPrice: Number.parseFloat(product.price),
+      imageThumbUrl: src || undefined,
+      stockQuantity: product.stockQuantity,
     });
   };
 

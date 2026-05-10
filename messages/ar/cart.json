@@ -21,5 +21,15 @@
   "cartMobileBarTotal": "الإجمالي",
   "cartMobileBarOrder": "اطلب",
   "cartMobileOpenSummaryAria": "فتح ملخص الطلب",
-  "cartMobileCloseSummaryAria": "إغلاق ملخص الطلب"
+  "cartMobileCloseSummaryAria": "إغلاق ملخص الطلب",
+  "cartNotesLabel": "ملاحظات للمندوب (اختياري)",
+  "cartNotesPlaceholder": "رقم الهيكل، عنوان الشحن، أسئلة…",
+  "cartCheckoutLoading": "جارٍ التجهيز…",
+  "cartCheckoutErrorGeneric": "تعذّر إتمام الطلب. حاول مرة أخرى.",
+  "cartCopyOrderMessage": "نسخ نص الطلب",
+  "cartCopied": "تم النسخ!",
+  "cartCopyFailed": "تعذّر النسخ. حاول نسخ النص يدوياً.",
+  "cartPopupBlockedHint": "إن لم يُفتح واتساب، استخدم هذا الرابط:",
+  "cartOpenWhatsApp": "فتح واتساب",
+  "cartWhatsAppNotConfigured": "لم يُضبط رقم واتساب على الخادم. انسخ الرسالة أدناه وأرسلها إلينا عبر تطبيق واتساب."
 }

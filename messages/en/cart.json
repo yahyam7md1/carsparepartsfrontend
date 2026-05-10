@@ -21,5 +21,15 @@
   "cartMobileBarTotal": "Total",
   "cartMobileBarOrder": "Order",
   "cartMobileOpenSummaryAria": "Open order summary",
-  "cartMobileCloseSummaryAria": "Close order summary"
+  "cartMobileCloseSummaryAria": "Close order summary",
+  "cartNotesLabel": "Notes for the agent (optional)",
+  "cartNotesPlaceholder": "VIN, preferred shipping address, questions…",
+  "cartCheckoutLoading": "Preparing…",
+  "cartCheckoutErrorGeneric": "Checkout failed. Please try again.",
+  "cartCopyOrderMessage": "Copy order message",
+  "cartCopied": "Copied!",
+  "cartCopyFailed": "Could not copy. Try selecting the text manually.",
+  "cartPopupBlockedHint": "If WhatsApp did not open, use this link:",
+  "cartOpenWhatsApp": "Open WhatsApp",
+  "cartWhatsAppNotConfigured": "WhatsApp is not configured on the server. Copy the message below and send it to us using your WhatsApp app."
 }

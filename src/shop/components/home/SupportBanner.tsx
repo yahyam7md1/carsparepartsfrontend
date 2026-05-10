@@ -1,10 +1,10 @@
 import { FaWhatsapp } from "react-icons/fa";
 import { getTranslations } from "next-intl/server";
-import { getWhatsappChatUrl } from "@/shop/lib/whatsapp-url";
+import { resolveWhatsappChatUrl } from "@/shop/lib/whatsapp-url";
 
 export async function SupportBanner() {
   const t = await getTranslations("home");
-  const wa = getWhatsappChatUrl();
+  const wa = await resolveWhatsappChatUrl({ prefillText: t("whatsappPrefillMessage") });
   const href = wa ?? "/contact";
   const isExternal = wa != null;
 

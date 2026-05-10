@@ -32,6 +32,13 @@ export {
   fetchProductPublic,
   fetchProductsPublic,
 } from "./services/products";
+export { fetchShopSupportPublic, type ShopSupportPublicResponse } from "./services/shopSupport";
+export {
+  postWhatsappCheckoutIntent,
+  type WhatsappCheckoutItem,
+  type WhatsappCheckoutRequest,
+  type WhatsappCheckoutResponse,
+} from "./services/checkout";
 export type {
   FeaturedProductsParams,
   PublicProductListParams,

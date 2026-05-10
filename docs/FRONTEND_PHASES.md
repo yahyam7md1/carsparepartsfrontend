@@ -302,6 +302,8 @@ Build reusable pieces before or during the phase that first needs them. Names ar
 
 ## Phase F6 — Cart & WhatsApp checkout
 
+**Implementation notes:** [phase-6.md](./phase-6.md).
+
 **Goal:** Cart page + integration with **`POST /api/checkout/whatsapp-intent`**.
 
 ### Deliverables
