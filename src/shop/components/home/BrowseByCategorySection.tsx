@@ -28,8 +28,7 @@ function CategoryChip({
       className={clsx(
         "group flex min-h-[4.5rem] w-full items-center gap-3 rounded-xl border border-neutral-200/90 bg-white px-4 py-3 shadow-sm",
         "transition-all duration-200 ease-out",
-        "hover:border-accent hover:shadow-md",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+        "hover:border-primary/25 hover:shadow-md",
         hasChildren && "cursor-pointer",
       )}
     >
@@ -105,8 +104,7 @@ function CategoryChip({
                   className={clsx(
                     "rounded-full border border-neutral-200/90 bg-white px-3 py-1.5 text-xs font-medium text-primary text-center shadow-sm",
                     "transition-colors duration-150",
-                    "hover:bg-primary/5 hover:border-primary/20",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35",
+                    "hover:border-primary/25",
                   )}
                 >
                   {childLabel}
