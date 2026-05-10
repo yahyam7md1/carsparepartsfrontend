@@ -9,7 +9,7 @@ export async function HomeView() {
   return (
     <div className="pb-16">
       <Hero />
-      <div className="mx-auto max-w-7xl space-y-16 px-4 py-16">
+      <div className="mx-auto max-w-7xl space-y-24 px-4 py-16">
         <BrandGrid />
         <BrowseByCategorySection />
         <HomeFeaturedSection />

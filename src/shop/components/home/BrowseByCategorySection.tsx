@@ -6,22 +6,39 @@ import { Link } from "@/i18n/navigation";
 import { useCategoriesTree } from "@/hooks";
 import clsx from "clsx";
 import * as Popover from "@radix-ui/react-popover";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { CategoryTreeNode } from "@/lib/api/types";
 
 function CategoryChip({
   category,
   locale,
   subcategoriesLabel,
+  subcategoriesOfLabel,
 }: {
   category: CategoryTreeNode;
   locale: string;
   subcategoriesLabel: string;
+  subcategoriesOfLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const label = locale === "ar" ? category.nameAr : category.nameEn;
   const hasChildren = category.children.length > 0;
+
+  const handleMouseEnter = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setIsHovering(true);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsHovering(false);
+    }, 100);
+  };
 
   const chipContent = (
     <div
@@ -37,7 +54,7 @@ function CategoryChip({
         className="size-5 shrink-0 text-secondary transition-colors duration-200 group-hover:text-primary"
         strokeWidth={2}
       />
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-shrink">
         <span className="block truncate text-sm font-semibold text-primary">
           {label}
         </span>
@@ -71,8 +88,8 @@ function CategoryChip({
         <button
           type="button"
           className="w-full text-start"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {chipContent}
         </button>
@@ -87,9 +104,14 @@ function CategoryChip({
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           )}
           sideOffset={8}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
+          <div className="mb-3 border-b border-neutral-200/70 pb-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-secondary">
+              {subcategoriesOfLabel} {label}
+            </h3>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             {category.children.map((child) => {
               const childLabel = locale === "ar" ? child.nameAr : child.nameEn;
@@ -98,6 +120,9 @@ function CategoryChip({
                   key={child.id}
                   href={`/products?categoryId=${child.id}`}
                   onClick={() => {
+                    if (closeTimeoutRef.current) {
+                      clearTimeout(closeTimeoutRef.current);
+                    }
                     setOpen(false);
                     setIsHovering(false);
                   }}
@@ -171,6 +196,7 @@ export function BrowseByCategorySection() {
             category={category}
             locale={locale}
             subcategoriesLabel={t("categoriesSubcategories")}
+            subcategoriesOfLabel={t("subcategoriesOf")}
           />
         ))}
       </div>
