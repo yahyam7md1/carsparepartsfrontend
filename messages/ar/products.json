@@ -1,5 +1,6 @@
 {
   "title": "المنتجات",
+  "allProducts": "جميع المنتجات",
   "searchPlaceholder": "ابحث باسم القطعة أو رقم SKU أو رقم OEM المصنعي…",
   "productsCount": "منتج",
   "filtersTitle": "الفلاتر",

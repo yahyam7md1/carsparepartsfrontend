@@ -98,3 +98,60 @@ export function buildCategoryTableRows(
 export function countDistinctParents(rows: CategoryTableRowModel[]): number {
   return new Set(rows.map((r) => r.parent.id)).size;
 }
+
+/** Direct product count on this category only (API shape). */
+function directProductCount(c: AdminCategory): number {
+  const n = c.productCount;
+  if (typeof n !== "number" || !Number.isFinite(n) || n < 0) return 0;
+  return Math.floor(n);
+}
+
+/** Sum of direct counts on `rootId` and all descendants in `flat`. */
+export function rollupProductCountIncludingDescendants(
+  rootId: number,
+  flat: AdminCategory[],
+): number {
+  const self = flat.find((c) => c.id === rootId);
+  const direct = self ? directProductCount(self) : 0;
+  const children = flat.filter((c) => c.parentId === rootId);
+  return (
+    direct +
+    children.reduce(
+      (sum, ch) => sum + rollupProductCountIncludingDescendants(ch.id, flat),
+      0,
+    )
+  );
+}
+
+export type CategoryRowProductBadge = Readonly<{
+  /** Number to show prominently in the Products cell */
+  displayCount: number;
+  kind: "sub" | "parent";
+  /** Direct assignments on this row’s category */
+  directOnRow: number;
+  /** For parents: includes all subcategories */
+  totalIncludingDescendants: number;
+}>;
+
+export function getProductBadgeForCategoryRow(
+  row: CategoryTableRowModel,
+  flat: AdminCategory[],
+): CategoryRowProductBadge {
+  if (row.child) {
+    const d = directProductCount(row.child);
+    return {
+      displayCount: d,
+      kind: "sub",
+      directOnRow: d,
+      totalIncludingDescendants: d,
+    };
+  }
+  const direct = directProductCount(row.parent);
+  const total = rollupProductCountIncludingDescendants(row.parent.id, flat);
+  return {
+    displayCount: total,
+    kind: "parent",
+    directOnRow: direct,
+    totalIncludingDescendants: total,
+  };
+}

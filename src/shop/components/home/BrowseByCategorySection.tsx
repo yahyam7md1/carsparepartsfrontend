@@ -187,6 +187,14 @@ export function BrowseByCategorySection() {
         <p className="mx-auto mt-3 max-w-xl text-pretty text-sm leading-relaxed text-secondary md:text-base">
           {t("browseCategoriesSubtitle")}
         </p>
+        <div className="mt-6">
+          <Link
+            href="/products"
+            className="text-sm font-semibold text-primary underline underline-offset-4 hover:text-primary/80"
+          >
+            {t("browseAllProductsCta")}
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">

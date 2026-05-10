@@ -1,5 +1,6 @@
 {
   "title": "Products",
+  "allProducts": "All products",
   "searchPlaceholder": "Search by part name, SKU, or OEM factory number…",
   "productsCount": "products",
   "filtersTitle": "Filters",
