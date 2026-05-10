@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitch } from "@/shop/components/shell/LanguageSwitch";
-import { getWhatsappChatUrl } from "@/shop/lib/whatsapp-url";
+import { resolveWhatsappChatUrl } from "@/shop/lib/whatsapp-url";
 
 const SHOP_LINKS = [
   { href: "/products", messageKey: "footerLinkAllProducts" as const },
@@ -24,7 +24,8 @@ const LEGAL_LINKS = [
 export async function ShopFooter() {
   const t = await getTranslations("footer");
   const tn = await getTranslations("nav");
-  const waUrl = getWhatsappChatUrl();
+  const th = await getTranslations("home");
+  const waUrl = await resolveWhatsappChatUrl({ prefillText: th("whatsappPrefillMessage") });
 
   const helpExtras =
     waUrl != null

@@ -15,6 +15,20 @@ import type { CartLine } from "@/shop/types/cart";
 function isCartLine(value: unknown): value is CartLine {
   if (typeof value !== "object" || value === null) return false;
   const o = value as Record<string, unknown>;
+  if (
+    o.imageThumbUrl !== undefined &&
+    (typeof o.imageThumbUrl !== "string" || o.imageThumbUrl.length === 0)
+  ) {
+    return false;
+  }
+  if (
+    o.stockQuantity !== undefined &&
+    (typeof o.stockQuantity !== "number" ||
+      !Number.isFinite(o.stockQuantity) ||
+      o.stockQuantity < 0)
+  ) {
+    return false;
+  }
   return (
     typeof o.productId === "string" &&
     typeof o.sku === "string" &&
@@ -94,6 +108,8 @@ export function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         sku: line.sku,
         nameEn: line.nameEn,
         nameAr: line.nameAr,
+        imageThumbUrl: line.imageThumbUrl ?? merged.imageThumbUrl,
+        stockQuantity: line.stockQuantity ?? merged.stockQuantity,
       };
       return next;
     });
