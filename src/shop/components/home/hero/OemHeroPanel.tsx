@@ -19,7 +19,7 @@ const HERO_LABEL =
   "mb-0 flex cursor-pointer items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-wider text-white/85";
 
 const CATEGORY_TRIGGER =
-  "[&_button]:border-white/35 [&_button]:bg-white [&_button]:text-primary [&_button]:shadow-none [&_button]:ps-3 [&_button]:pe-6 [&_button]:gap-3";
+  "[&_button]:border-white/35 [&_button]:bg-white [&_button]:text-primary [&_button]:shadow-none [&_button]:ps-3 [&_button]:pe-6 [&_button]:gap-3 [&_button]:min-h-10 [&_button]:py-2";
 
 export function OemHeroPanel() {
   const t = useTranslations("hero");

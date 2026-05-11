@@ -45,7 +45,7 @@ export async function ShopFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div className="border-l-4 border-accent pl-4 sm:col-span-2 lg:col-span-1">
-            <p className="text-lg font-bold leading-snug">{tn("brand")}</p>
+            <p className="text-xl font-bold leading-snug">{tn("brand")}</p>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
               {t("footerTagline")}
             </p>
