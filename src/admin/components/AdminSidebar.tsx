@@ -35,7 +35,7 @@ function BrandBlock({ className }: { className?: string }) {
       </div>
       <div className="min-w-0">
         <p className="text-sm font-bold uppercase leading-tight tracking-wide text-primary">
-          Genuine German
+          Almani Motors
         </p>
         <p className="text-[11px] font-semibold uppercase tracking-wider text-secondary">
           Admin console
