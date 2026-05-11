@@ -1,0 +1,25 @@
+# DigitalOcean App Platform API (no trailing slash in host).
+# If your backend URL changes, update both `to` values below.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Browser calls same-origin /api → proxied to Express on DO.
+[[redirects]]
+  from = "/api/*"
+  to = "https://carspareparts-app-ww5g8.ondigitalocean.app/api/:splat"
+  status = 200
+  force = true
+
+# Legacy image paths when API still serves /uploads (Spaces CDN URLs skip this).
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://carspareparts-app-ww5g8.ondigitalocean.app/uploads/:splat"
+  status = 200
+  force = true
