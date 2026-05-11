@@ -156,7 +156,7 @@ export function BrowseByCategorySection() {
       >
         <div className="text-center">
           <h2
-            className="text-2xl font-bold tracking-tight text-primary md:text-3xl"
+            className="text-2xl font-semibold tracking-tight text-primary md:text-3xl"
             id="browse-categories-heading"
           >
             {t("browseCategoriesTitle")}

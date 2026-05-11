@@ -177,7 +177,6 @@ export function ProductDetailView({ productId, locale }: Props) {
           <ProductPurchaseCard
             brandName={product.brandName}
             title={title}
-            sku={product.sku}
             inStock={product.stockQuantity > 0}
             stockLabel={tProduct("inStock")}
             outOfStockLabel={tHome("outOfStock")}

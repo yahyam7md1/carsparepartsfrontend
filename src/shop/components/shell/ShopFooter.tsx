@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitch } from "@/shop/components/shell/LanguageSwitch";
 import { resolveWhatsappChatUrl } from "@/shop/lib/whatsapp-url";
@@ -125,12 +124,6 @@ export async function ShopFooter() {
 
             <div className="text-start sm:text-end">
               <p className="text-xs text-white/60">{t("footerCopyright")}</p>
-              <NextLink
-                className="mt-2 inline-block text-xs text-white/45 underline-offset-4 transition hover:text-white/70 hover:underline"
-                href="/admin/login"
-              >
-                {tn("adminConsole")}
-              </NextLink>
             </div>
           </div>
         </div>

@@ -130,7 +130,7 @@ function CategoryNode({
                 aria-hidden
                 className={clsx(
                   "size-4 transition-transform duration-200",
-                  open ? "rotate-0" : "-rotate-90",
+                  open ? "rotate-0" : isAr ? "rotate-90" : "-rotate-90",
                 )}
                 strokeWidth={2.5}
               />

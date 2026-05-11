@@ -2,11 +2,13 @@
 
 import { CategoryFormModal } from "@/admin/components/categories/CategoryFormModal";
 import { CategoryGroupedTable } from "@/admin/components/categories/CategoryGroupedTable";
+import { AdminSimpleListModal } from "@/admin/components/inventory/AdminSimpleListModal";
 import {
   buildCategoryTableRows,
   countDistinctParents,
   getVisibleCategoryIds,
 } from "@/admin/lib/category-table-rows";
+import { fetchAdminProducts } from "@/lib/api/services/adminProducts";
 import { isApiError } from "@/lib/api/errors";
 import {
   deleteAdminCategory,
@@ -24,6 +26,10 @@ export function AdminCategoriesView() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editing, setEditing] = useState<AdminCategory | null>(null);
+  const [productsModalCategory, setProductsModalCategory] = useState<AdminCategory | null>(null);
+  const [productsModalLines, setProductsModalLines] = useState<string[]>([]);
+  const [productsModalLoading, setProductsModalLoading] = useState(false);
+  const [productsModalError, setProductsModalError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoadError(null);
@@ -95,6 +101,36 @@ export function AdminCategoriesView() {
     }
   }
 
+  const openProductsModal = useCallback(async (category: AdminCategory) => {
+    setProductsModalCategory(category);
+    setProductsModalLines([]);
+    setProductsModalError(null);
+    setProductsModalLoading(true);
+    try {
+      const collected: string[] = [];
+      let page = 1;
+      while (true) {
+        const res = await fetchAdminProducts({
+          categoryId: category.id,
+          page,
+          limit: 200,
+        });
+        collected.push(
+          ...res.products.map((p) => `${p.sku} — ${p.nameEn}`),
+        );
+        if (page * res.limit >= res.total || res.products.length === 0) break;
+        page += 1;
+      }
+      setProductsModalLines(collected);
+    } catch (e) {
+      setProductsModalError(
+        isApiError(e) ? e.message : e instanceof Error ? e.message : "Could not load products",
+      );
+    } finally {
+      setProductsModalLoading(false);
+    }
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -137,6 +173,7 @@ export function AdminCategoriesView() {
           allCategories={categories}
           searchValue={search}
           onSearchChange={setSearch}
+          onOpenProducts={(c) => void openProductsModal(c)}
           onEdit={openEdit}
           onDelete={handleDelete}
         />
@@ -149,6 +186,30 @@ export function AdminCategoriesView() {
         categories={categories}
         onClose={closeModal}
         onSaved={() => void refresh()}
+      />
+
+      <AdminSimpleListModal
+        open={productsModalCategory !== null}
+        onClose={() => {
+          setProductsModalCategory(null);
+          setProductsModalLines([]);
+          setProductsModalLoading(false);
+          setProductsModalError(null);
+        }}
+        title={
+          productsModalCategory
+            ? `Products — ${productsModalCategory.nameEn}`
+            : "Products"
+        }
+        subtitle={
+          productsModalLoading
+            ? "Loading products…"
+            : productsModalError
+              ? productsModalError
+              : "All products under this category. Parent categories include descendant subcategories."
+        }
+        lines={productsModalError ? [] : productsModalLines}
+        emptyMessage={productsModalLoading ? "Loading…" : "No products in this category."}
       />
     </div>
   );

@@ -7,6 +7,14 @@ const apiProxyTarget =
   process.env.API_PROXY_TARGET?.replace(/\/$/, "") ?? "http://localhost:3001";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+    ],
+  },
   async rewrites() {
     return [
       {

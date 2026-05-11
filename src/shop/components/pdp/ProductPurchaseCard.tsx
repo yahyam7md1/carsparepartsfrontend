@@ -10,7 +10,6 @@ import { PDP_CARD_SHELL } from "@/shop/components/pdp/cardShell";
 type Props = Readonly<{
   brandName: string;
   title: string;
-  sku: string;
   inStock: boolean;
   stockLabel: string;
   outOfStockLabel: string;
@@ -30,7 +29,6 @@ type Props = Readonly<{
 export function ProductPurchaseCard({
   brandName,
   title,
-  sku,
   inStock,
   stockLabel,
   outOfStockLabel,

@@ -14,6 +14,7 @@ type CategoryGroupedTableProps = {
   allCategories: AdminCategory[];
   searchValue: string;
   onSearchChange: (v: string) => void;
+  onOpenProducts: (category: AdminCategory) => void;
   onEdit: (category: AdminCategory) => void;
   onDelete: (category: AdminCategory) => void;
 };
@@ -43,36 +44,49 @@ function BilingualCell({
   );
 }
 
-function ProductsBadge({ row, flat }: { row: CategoryTableRowModel; flat: AdminCategory[] }) {
+function ProductsBadge({
+  row,
+  flat,
+  onOpenProducts,
+}: {
+  row: CategoryTableRowModel;
+  flat: AdminCategory[];
+  onOpenProducts: (category: AdminCategory) => void;
+}) {
   const badge = getProductBadgeForCategoryRow(row, flat);
+  const targetCategory = row.child ?? row.parent;
   const n = badge.displayCount;
   const label = n === 1 ? "Part" : "Parts";
   if (badge.kind === "sub") {
     return (
-      <span
-        className="inline-flex flex-col gap-0.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900"
+      <button
+        type="button"
+        onClick={() => onOpenProducts(targetCategory)}
+        className="group inline-flex cursor-pointer flex-col gap-0.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900"
         title="Products assigned directly to this subcategory"
       >
-        <span>
+        <span className="group-hover:underline">
           {n} {label}
         </span>
         <span className="text-[0.65rem] font-normal text-sky-800/90">Subcategory</span>
-      </span>
+      </button>
     );
   }
   const direct = badge.directOnRow;
   const total = badge.totalIncludingDescendants;
   const hasSplit = total !== direct;
   return (
-    <span
-      className="inline-flex flex-col gap-0.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900"
+    <button
+      type="button"
+      onClick={() => onOpenProducts(targetCategory)}
+      className="group inline-flex cursor-pointer flex-col gap-0.5 rounded-full bg-sky-100 px-2.5 py-1 text-xs font-medium text-sky-900"
       title={
         hasSplit
           ? `${total} products under this category tree (${direct} on parent only, ${total - direct} in subcategories)`
           : `${total} products (parent category only)`
       }
     >
-      <span>
+      <span className="group-hover:underline">
         {total} {total === 1 ? "Part" : "Parts"}{" "}
         <span className="font-normal text-[0.7rem] text-sky-800/85">total</span>
       </span>
@@ -83,7 +97,7 @@ function ProductsBadge({ row, flat }: { row: CategoryTableRowModel; flat: AdminC
       ) : (
         <span className="text-[0.65rem] font-normal text-sky-800/90">Parent</span>
       )}
-    </span>
+    </button>
   );
 }
 
@@ -92,6 +106,7 @@ export function CategoryGroupedTable({
   allCategories,
   searchValue,
   onSearchChange,
+  onOpenProducts,
   onEdit,
   onDelete,
 }: CategoryGroupedTableProps) {
@@ -158,7 +173,7 @@ export function CategoryGroupedTable({
                   </div>
                 )}
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <ProductsBadge row={row} flat={allCategories} />
+                  <ProductsBadge row={row} flat={allCategories} onOpenProducts={onOpenProducts} />
                   <div className="flex gap-1">
                     <button
                       type="button"
@@ -256,7 +271,7 @@ export function CategoryGroupedTable({
                       )}
                     </td>
                     <td className="px-4 py-3 align-top">
-                      <ProductsBadge row={row} flat={allCategories} />
+                      <ProductsBadge row={row} flat={allCategories} onOpenProducts={onOpenProducts} />
                     </td>
                     <td className="px-4 py-3 align-top">
                       <div className="flex gap-1">

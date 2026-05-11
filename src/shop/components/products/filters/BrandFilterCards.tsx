@@ -43,6 +43,10 @@ export function BrandFilterCards({ selected, onToggle }: BrandFilterCardsProps) 
       {FILTER_BRANDS.map((brand) => {
         const isSelected = selected.includes(brand.query);
         const label = t(`brandTile_${brand.slug}`);
+        const iconSizeClass =
+          brand.slug === "mini" || brand.slug === "audi" ? "h-8 w-8" : "h-6 w-6";
+        const contentGapClass =
+          brand.slug === "mini" || brand.slug === "audi" ? "gap-0.5" : "gap-1.5";
         return (
           <button
             key={brand.slug}
@@ -50,7 +54,8 @@ export function BrandFilterCards({ selected, onToggle }: BrandFilterCardsProps) 
             onClick={() => onToggle(brand.query)}
             aria-pressed={isSelected}
             className={clsx(
-              "group flex h-[74px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border bg-white px-2 py-2 text-center shadow-sm transition-all duration-200 ease-out",
+              "group flex h-[74px] cursor-pointer flex-col items-center justify-center rounded-xl border bg-white px-2 py-2 text-center shadow-sm transition-all duration-200 ease-out",
+              contentGapClass,
               isSelected
                 ? "border-primary border-2 bg-primary/[0.04]"
                 : "border-neutral-200/90 hover:border-primary/25 hover:shadow-md",
@@ -59,7 +64,8 @@ export function BrandFilterCards({ selected, onToggle }: BrandFilterCardsProps) 
             <brand.Icon
               aria-hidden
               className={clsx(
-                "h-6 w-6 shrink-0 transition-colors duration-200",
+                iconSizeClass,
+                "shrink-0 transition-colors duration-200",
                 isSelected
                   ? "text-primary"
                   : "text-secondary group-hover:text-primary",

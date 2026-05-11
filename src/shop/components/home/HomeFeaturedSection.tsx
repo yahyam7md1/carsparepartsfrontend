@@ -15,14 +15,14 @@ export function HomeFeaturedSection() {
 
   return (
     <section aria-labelledby="best-sellers-heading">
-      <div className="mb-8 text-center md:text-start">
+      <div className="mb-8 text-center">
         <h2
-          className="text-2xl font-bold tracking-tight text-primary md:text-3xl"
+          className="text-2xl font-semibold tracking-tight text-primary md:text-3xl"
           id="best-sellers-heading"
         >
           {t("bestSellersTitle")}
         </h2>
-        <p className="mx-auto mt-2 max-w-2xl text-secondary md:mx-0">
+        <p className="mx-auto mt-2 max-w-2xl text-secondary">
           {t("bestSellersSubtitle")}
         </p>
       </div>
