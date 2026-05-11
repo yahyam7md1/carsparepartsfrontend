@@ -16,25 +16,6 @@ const INPUT = "h-9 min-h-9 py-1.5 text-xs leading-snug";
 const NO_SPINNER =
   "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
-function stockAlertsOrdered(f: number | null, m: number | null, s: number | null): boolean {
-  if (f != null && m != null && f > m) return false;
-  if (m != null && s != null && m > s) return false;
-  if (f != null && s != null && f > s) return false;
-  return true;
-}
-
-function parseOptionalInt(raw: string): number | null | "invalid" {
-  const t = raw.trim();
-  if (!t) return null;
-  const n = Number.parseInt(t, 10);
-  if (!Number.isFinite(n) || n < 0) return "invalid";
-  return n;
-}
-
-function optionalIntToInput(v: number | null): string {
-  return v == null ? "" : String(v);
-}
-
 export function SettingsView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -45,9 +26,6 @@ export function SettingsView() {
   const [waPhone, setWaPhone] = useState("");
   const [waGreetEn, setWaGreetEn] = useState("");
   const [waGreetAr, setWaGreetAr] = useState("");
-  const [defFast, setDefFast] = useState("");
-  const [defMed, setDefMed] = useState("");
-  const [defSlow, setDefSlow] = useState("");
   const [lowSlow, setLowSlow] = useState("");
   const [lowMed, setLowMed] = useState("");
   const [lowFast, setLowFast] = useState("");
@@ -56,9 +34,6 @@ export function SettingsView() {
     setWaPhone(s.whatsappBusinessPhoneDigits ?? "");
     setWaGreetEn(s.whatsappGreetingNameEn ?? "");
     setWaGreetAr(s.whatsappGreetingNameAr ?? "");
-    setDefFast(optionalIntToInput(s.defaultStockAlertFast));
-    setDefMed(optionalIntToInput(s.defaultStockAlertMedium));
-    setDefSlow(optionalIntToInput(s.defaultStockAlertSlow));
     setLowSlow(String(s.lowStockSlowAtOrBelow));
     setLowMed(String(s.lowStockMediumBelow));
     setLowFast(String(s.lowStockFastBelow));
@@ -89,17 +64,6 @@ export function SettingsView() {
 
   const handleSave = useCallback(async () => {
     setError(null);
-    const tFast = parseOptionalInt(defFast);
-    const tMed = parseOptionalInt(defMed);
-    const tSlow = parseOptionalInt(defSlow);
-    if (tFast === "invalid" || tMed === "invalid" || tSlow === "invalid") {
-      setError("Default stock alerts must be non-negative integers or empty.");
-      return;
-    }
-    if (!stockAlertsOrdered(tFast, tMed, tSlow)) {
-      setError("Default stock alerts must satisfy fast ≤ medium ≤ slow when set.");
-      return;
-    }
     const ls = Number.parseInt(lowSlow.trim(), 10);
     const lm = Number.parseInt(lowMed.trim(), 10);
     const lf = Number.parseInt(lowFast.trim(), 10);
@@ -123,9 +87,6 @@ export function SettingsView() {
         whatsappBusinessPhone: phoneTrim === "" ? null : phoneTrim,
         whatsappGreetingNameEn: waGreetEn.trim() === "" ? null : waGreetEn.trim(),
         whatsappGreetingNameAr: waGreetAr.trim() === "" ? null : waGreetAr.trim(),
-        defaultStockAlertFast: tFast,
-        defaultStockAlertMedium: tMed,
-        defaultStockAlertSlow: tSlow,
         lowStockSlowAtOrBelow: ls,
         lowStockMediumBelow: lm,
         lowStockFastBelow: lf,
@@ -138,9 +99,6 @@ export function SettingsView() {
     }
   }, [
     applySettings,
-    defFast,
-    defMed,
-    defSlow,
     lowFast,
     lowMed,
     lowSlow,
@@ -158,8 +116,7 @@ export function SettingsView() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-primary">Settings</h1>
         <p className="mt-1 max-w-2xl text-sm text-secondary">
-          WhatsApp checkout defaults and stock alert behavior for new products and the low-stock
-          list.
+          WhatsApp checkout defaults and low-stock dashboard rules.
         </p>
         {updatedAt ? (
           <p className="mt-2 text-xs text-secondary">Last saved {new Date(updatedAt).toLocaleString()}</p>
@@ -219,40 +176,6 @@ export function SettingsView() {
               />
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className={SECTION}>
-        <h2 className="text-[0.7rem] font-bold uppercase tracking-wide text-primary">
-          New product defaults
-        </h2>
-        <p className="mt-1 text-[0.65rem] leading-snug text-secondary">
-          When creating a product without per-tier stock alerts, these values apply. Leave blank for
-          no default. Fast ≤ medium ≤ slow.
-        </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          {(
-            [
-              ["Fast", defFast, setDefFast] as const,
-              ["Medium", defMed, setDefMed] as const,
-              ["Slow", defSlow, setDefSlow] as const,
-            ] as const
-          ).map(([label, val, setVal]) => (
-            <div key={label}>
-              <Label className="text-[0.6rem] font-semibold uppercase tracking-wide text-primary whitespace-nowrap">
-                {label}
-              </Label>
-              <Input
-                type="number"
-                min={0}
-                step={1}
-                value={val}
-                onChange={(e) => setVal(e.target.value)}
-                className={clsx("mt-1", INPUT, NO_SPINNER)}
-                inputMode="numeric"
-              />
-            </div>
-          ))}
         </div>
       </section>
 
