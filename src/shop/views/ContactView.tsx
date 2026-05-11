@@ -89,6 +89,9 @@ export async function ContactView() {
         <p className="mt-2 text-2xl font-semibold text-primary">
           {t("contactPageOperatingHoursValue")}
         </p>
+        <p className="mt-3 text-sm text-secondary">
+          {t("contactPageOfficeLocationNote")}
+        </p>
         <p className="mt-4 text-sm text-secondary">
           {t("contactPageSupportLanguagesNote")}
         </p>

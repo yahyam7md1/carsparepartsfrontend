@@ -21,7 +21,7 @@ const notoSansArabic = Noto_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: "Car spare parts",
-  description: "Customer shop and admin panel",
+  description: "German car spare parts shop based in Jeddah, Saudi Arabia.",
 };
 
 export default function RootLayout({
