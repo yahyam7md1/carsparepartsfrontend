@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import type {
   ProductDetail,
   AdminVehicleListRow,
@@ -250,6 +251,9 @@ export function AddProductModal({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const modalBodyScrollRef = useRef<HTMLDivElement>(null);
+
   const vehicles = vehicleList.data?.vehicles ?? [];
   const availableVehicles = useMemo(
     () => vehicles.filter((v) => !vehicleIds.includes(v.id)),
@@ -260,6 +264,22 @@ export function AddProductModal({
     () => files.map((file) => URL.createObjectURL(file)),
     [files],
   );
+
+  useEffect(() => {
+    if (!open) return;
+    const onWindowFocus = () => {
+      requestAnimationFrame(() => {
+        fileInputRef.current?.blur();
+        modalBodyScrollRef.current?.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "instant",
+        });
+      });
+    };
+    window.addEventListener("focus", onWindowFocus);
+    return () => window.removeEventListener("focus", onWindowFocus);
+  }, [open]);
 
   useEffect(() => {
     const urls = imagePreviewUrls;
@@ -570,6 +590,7 @@ export function AddProductModal({
       open={open}
       onClose={onClose}
       title={mode === "add" ? "Add new product" : "Edit product"}
+      bodyScrollRef={modalBodyScrollRef}
       footer={
         <div className="flex flex-wrap justify-end gap-2">
           <Button
@@ -952,26 +973,41 @@ export function AddProductModal({
               <p className="text-[0.65rem] text-secondary">No saved images yet — add files below.</p>
             ) : null}
 
-            <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary/30 bg-background/50 px-4 py-4 text-center text-xs text-secondary">
-              <ImageIcon className="size-7 stroke-1 text-secondary" aria-hidden />
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                className="sr-only"
+            <div
+              className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-secondary/30 bg-background/50 px-4 py-4 text-center text-xs text-secondary"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (submitting) return;
+                const list = Array.from(e.dataTransfer.files ?? []).filter((f) => {
+                  const t = f.type.toLowerCase();
+                  return (
+                    t === "image/jpeg" ||
+                    t === "image/png" ||
+                    t === "image/webp"
+                  );
+                });
+                if (list.length) setFiles((prev) => [...prev, ...list]);
+              }}
+            >
+              <button
+                type="button"
                 disabled={submitting}
-                onChange={(e) => {
-                  const list = Array.from(e.target.files ?? []);
-                  setFiles((prev) => [...prev, ...list]);
-                  e.target.value = "";
-                }}
-              />
-              <span className="max-w-sm leading-snug">
-                Drag &amp; drop images here or click to browse · JPEG / PNG / WebP · On{" "}
-                <strong>create</strong>, the first file becomes main. On <strong>edit</strong>, new
-                files append; main is unchanged unless you delete the main image.
-              </span>
-            </label>
+                className="flex w-full flex-col items-center justify-center gap-1.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-accent/35"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImageIcon className="size-7 stroke-1 text-secondary" aria-hidden />
+                <span className="max-w-sm leading-snug">
+                  Drag &amp; drop images here or click to browse · JPEG / PNG / WebP · On{" "}
+                  <strong>create</strong>, the first file becomes main. On <strong>edit</strong>, new
+                  files append; main is unchanged unless you delete the main image.
+                </span>
+              </button>
+            </div>
             {files.length > 0 ? (
               <div>
                 <p className="mb-1.5 text-[0.65rem] font-medium text-foreground">
@@ -1011,6 +1047,27 @@ export function AddProductModal({
         </section>
       </div>
     </WideModal>
+
+    {open && typeof document !== "undefined"
+      ? createPortal(
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            aria-hidden
+            tabIndex={-1}
+            disabled={submitting}
+            className="sr-only"
+            onChange={(e) => {
+              const list = Array.from(e.target.files ?? []);
+              setFiles((prev) => [...prev, ...list]);
+              e.target.value = "";
+            }}
+          />,
+          document.body,
+        )
+      : null}
 
     {lightboxSrc ? (
       <div

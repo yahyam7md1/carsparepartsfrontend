@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { X } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, type ReactNode, type Ref } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "./button";
 
@@ -22,6 +22,8 @@ export type ModalProps = Readonly<{
   titleClassName?: string;
   /** Merged with the scrollable body region. */
   bodyClassName?: string;
+  /** Ref to the scrollable body container (overflow-y-auto). */
+  bodyScrollRef?: Ref<HTMLDivElement>;
   /** Merged with the footer region. */
   footerClassName?: string;
 }>;
@@ -37,6 +39,7 @@ export function Modal({
   headerClassName,
   titleClassName,
   bodyClassName,
+  bodyScrollRef,
   footerClassName,
 }: ModalProps) {
   useEffect(() => {
@@ -45,11 +48,28 @@ export function Modal({
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
+    const scrollY = window.scrollY;
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevLeft = document.body.style.left;
+    const prevRight = document.body.style.right;
+    const prevWidth = document.body.style.width;
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.left = prevLeft;
+      document.body.style.right = prevRight;
+      document.body.style.width = prevWidth;
+      window.scrollTo(0, scrollY);
     };
   }, [open, onClose]);
 
@@ -101,6 +121,7 @@ export function Modal({
           </Button>
         </header>
         <div
+          ref={bodyScrollRef}
           className={clsx(
             "min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6",
             bodyClassName,
