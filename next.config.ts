@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "carsparepartsbucket.fra1.cdn.digitaloceanspaces.com",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {
