@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Circle, Cog, Link2 } from "lucide-react";
+import { ArrowRight, Car, Cog, Link2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import clsx from "clsx";
@@ -75,7 +75,7 @@ export function VehicleHeroPanel() {
     >
       <div className="flex flex-col gap-1.5">
         <Label className={HERO_LABEL} htmlFor={makeFieldId}>
-          <Circle
+          <Car
             aria-hidden
             className="size-3.5 shrink-0 opacity-90"
             strokeWidth={2}
