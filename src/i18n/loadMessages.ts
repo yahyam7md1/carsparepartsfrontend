@@ -11,6 +11,7 @@ const namespaces = [
   "contact",
   "footer",
   "common",
+  "metadata",
 ] as const;
 
 export async function loadMessages(locale: AppLocale) {

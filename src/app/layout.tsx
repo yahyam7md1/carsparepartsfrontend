@@ -20,7 +20,7 @@ const notoSansArabic = Noto_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "Car spare parts",
+  title: "Almani Motors | German Auto Parts",
   description: "German car spare parts shop based in Jeddah, Saudi Arabia.",
 };
 
