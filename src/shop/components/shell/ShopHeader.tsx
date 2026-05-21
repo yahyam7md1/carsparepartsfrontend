@@ -2,7 +2,8 @@
 
 import clsx from "clsx";
 import { Menu, Search, ShoppingCart, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { FormEventHandler } from "react";
 import { useState } from "react";
@@ -82,6 +83,50 @@ function HeaderCartLink({
   );
 }
 
+function ShopBrandLink({
+  className,
+}: Readonly<{
+  className: string;
+}>) {
+  const t = useTranslations("nav");
+  const locale = useLocale();
+  const isAr = locale === "ar";
+
+  const logo = (
+    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-visible sm:h-10 sm:w-10 lg:h-10 lg:w-10">
+      <Image
+        alt=""
+        className="size-full origin-center scale-[1.2] object-contain sm:scale-[1.18] lg:scale-[1.22]"
+        height={160}
+        priority
+        src="/am-logo.png"
+        width={160}
+      />
+    </span>
+  );
+  const label = <span className="truncate">{t("brand")}</span>;
+
+  return (
+    <Link
+      className={clsx("flex min-w-0 items-center gap-2.5", className)}
+      dir="ltr"
+      href="/shop"
+    >
+      {isAr ? (
+        <>
+          {label}
+          {logo}
+        </>
+      ) : (
+        <>
+          {logo}
+          {label}
+        </>
+      )}
+    </Link>
+  );
+}
+
 export function ShopHeader() {
   const t = useTranslations("nav");
   const router = useRouter();
@@ -143,16 +188,11 @@ export function ShopHeader() {
       className="sticky top-0 z-50 border-b border-primary/10 bg-white shadow-sm"
       data-component="shop-header"
     >
-      <div className="mx-auto max-w-7xl px-4 py-2 sm:px-4 sm:py-3 lg:py-4">
+      <div className="mx-auto max-w-7xl px-4 py-1.5 sm:px-4 sm:py-2 lg:py-3">
         {/* Mobile */}
         <div className="flex flex-col gap-2 lg:hidden">
           <div className="flex items-center justify-between gap-2">
-            <Link
-              className="min-w-0 truncate text-base font-semibold leading-tight tracking-tight text-primary sm:text-lg"
-              href="/shop"
-            >
-              {t("brand")}
-            </Link>
+            <ShopBrandLink className="min-w-0 text-base font-semibold leading-tight tracking-tight text-primary sm:text-lg" />
 
             <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
               <button
@@ -240,12 +280,7 @@ export function ShopHeader() {
         {/* Desktop: nav fills space between brand and tools; links centered in that corridor. */}
         <div className="hidden items-center gap-6 lg:flex">
           <div className="min-w-0 shrink-0">
-            <Link
-              className="truncate text-xl font-semibold tracking-tight text-primary"
-              href="/shop"
-            >
-              {t("brand")}
-            </Link>
+            <ShopBrandLink className="truncate text-xl font-semibold tracking-tight text-primary" />
           </div>
 
           <nav

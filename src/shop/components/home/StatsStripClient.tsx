@@ -39,7 +39,7 @@ export function StatsStripClient({
 
   const stats: Stat[] = [
     { icon: Package,    end: 5000,  suffix: "+",  label: labels.parts   },
-    { icon: Users,      end: 10,    suffix: "k+", label: labels.clients },
+    { icon: Users,      end: 5,     suffix: "k+", label: labels.clients },
     { icon: Headphones, end: 24,    suffix: "/7", label: labels.support },
     { icon: Award,      end: 15,    suffix: "+",  label: labels.years   },
   ];
