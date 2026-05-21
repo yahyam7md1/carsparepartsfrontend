@@ -10,12 +10,6 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[[redirects]]
-  from = "/admin/*"
-  to = "/internal/manage/:splat"
-  status = 301
-  force = true
-
 # Browser calls same-origin /api → proxied to Express on DO.
 [[redirects]]
   from = "/api/*"

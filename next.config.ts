@@ -7,15 +7,6 @@ const apiProxyTarget =
   process.env.API_PROXY_TARGET?.replace(/\/$/, "") ?? "http://localhost:3001";
 
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        source: "/admin/:path*",
-        destination: "/internal/manage/:path*",
-        permanent: true,
-      },
-    ];
-  },
   images: {
     remotePatterns: [
       {
