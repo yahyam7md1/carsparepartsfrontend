@@ -1,5 +1,6 @@
 "use client";
 
+import { ADMIN_DASHBOARD_PATH } from "@/admin/constants/adminUiRoutes";
 import { AdminLoginForm } from "@/admin/components/AdminLoginForm";
 import { useAuth } from "@/admin/context/AdminAuthContext";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,7 @@ export function AdminLoginPageClient() {
   useEffect(() => {
     if (!ready) return;
     if (status === "authenticated" && user) {
-      router.replace("/admin/dashboard");
+      router.replace(ADMIN_DASHBOARD_PATH);
     }
   }, [ready, status, user, router]);
 

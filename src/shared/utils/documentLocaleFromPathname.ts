@@ -7,7 +7,7 @@ export type DocumentLocale = {
 
 /**
  * Maps pathname to document lang/dir. Shop URLs use /en/... or /ar/...;
- * everything else (e.g. /admin) defaults to English LTR.
+ * everything else (e.g. /internal/manage) defaults to English LTR.
  */
 export function getDocumentLocaleFromPathname(
   pathname: string | null,

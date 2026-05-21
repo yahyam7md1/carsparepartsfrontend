@@ -12,19 +12,27 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
+import {
+  ADMIN_DASHBOARD_PATH,
+  ADMIN_UI_BASE,
+} from "@/admin/constants/adminUiRoutes";
 import { useAuth } from "@/admin/context/AdminAuthContext";
 
 const navItems = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/admin/inventory", label: "Inventory", icon: Package },
+  { href: `${ADMIN_UI_BASE}/dashboard`, label: "Dashboard", icon: LayoutGrid },
+  { href: `${ADMIN_UI_BASE}/inventory`, label: "Inventory", icon: Package },
   {
-    href: "/admin/vehicles",
+    href: `${ADMIN_UI_BASE}/vehicles`,
     label: "Vehicle Library",
     shortLabel: "Vehicles",
     icon: BookOpen,
   },
-  { href: "/admin/categories", label: "Categories", icon: SlidersHorizontal },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  {
+    href: `${ADMIN_UI_BASE}/categories`,
+    label: "Categories",
+    icon: SlidersHorizontal,
+  },
+  { href: `${ADMIN_UI_BASE}/settings`, label: "Settings", icon: Settings },
 ] as const;
 
 function BrandBlock({ className }: { className?: string }) {
@@ -56,7 +64,7 @@ function SidebarNavLink({
 }) {
   const pathname = usePathname();
   const active =
-    href === "/admin/dashboard"
+    href === ADMIN_DASHBOARD_PATH
       ? pathname === href
       : pathname === href || pathname.startsWith(`${href}/`);
 
@@ -91,7 +99,7 @@ function MobileNavLink({
 }) {
   const pathname = usePathname();
   const active =
-    href === "/admin/dashboard"
+    href === ADMIN_DASHBOARD_PATH
       ? pathname === href
       : pathname === href || pathname.startsWith(`${href}/`);
 

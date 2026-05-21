@@ -1,5 +1,6 @@
 "use client";
 
+import { ADMIN_LOGIN_PATH } from "@/admin/constants/adminUiRoutes";
 import { AdminShell } from "@/admin/components/AdminShell";
 import { useAuth } from "@/admin/context/AdminAuthContext";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,7 @@ export function AdminProtectedLayoutClient({
   useEffect(() => {
     if (!ready) return;
     if (status === "unauthenticated" || !user) {
-      router.replace("/admin/login");
+      router.replace(ADMIN_LOGIN_PATH);
     }
   }, [ready, status, user, router]);
 

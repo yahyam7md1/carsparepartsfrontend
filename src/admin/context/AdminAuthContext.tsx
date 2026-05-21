@@ -10,6 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  ADMIN_DASHBOARD_PATH,
+  ADMIN_LOGIN_PATH,
+  isAdminLoginPath,
+} from "@/admin/constants/adminUiRoutes";
 import { setAdminUnauthorizedHandler } from "@/lib/api/adminClient";
 import {
   fetchAdminMe,
@@ -70,7 +75,7 @@ export function AdminAuthProvider({ children }: Readonly<{ children: ReactNode }
       const me = await fetchAdminMe();
       setUser(me);
       setStatus("authenticated");
-      router.replace("/admin/dashboard");
+      router.replace(ADMIN_DASHBOARD_PATH);
     } catch (e) {
       setUser(null);
       setStatus("unauthenticated");
@@ -83,15 +88,15 @@ export function AdminAuthProvider({ children }: Readonly<{ children: ReactNode }
     await logoutRequest();
     setUser(null);
     setStatus("unauthenticated");
-    router.replace("/admin/login");
+    router.replace(ADMIN_LOGIN_PATH);
   }, [router]);
 
   useEffect(() => {
     const handler = () => {
       setUser(null);
       setStatus("unauthenticated");
-      if (!pathname.startsWith("/admin/login")) {
-        router.replace("/admin/login");
+      if (!isAdminLoginPath(pathname)) {
+        router.replace(ADMIN_LOGIN_PATH);
       }
     };
     setAdminUnauthorizedHandler(handler);
